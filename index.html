@@ -367,11 +367,20 @@ tr:hover td{background:var(--bg3)}
   </div>
   <div class="nav-divider"></div>
   <div class="nav-group">
+    <div class="nav-group-title">Senior Engineer</div>
+    <a href="#app-arch"><span class="nav-icon">16</span> App Architecture</a>
+    <a href="#api-webhooks"><span class="nav-icon">17</span> API & Webhooks</a>
+    <a href="#data-reliability"><span class="nav-icon">18</span> Data & Reliability</a>
+    <a href="#tradeoffs"><span class="nav-icon">19</span> Tradeoffs</a>
+    <a href="#senior-quiz"><span class="nav-icon">20</span> Senior Quiz</a>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-group">
     <div class="nav-group-title">Practice & Review</div>
-    <a href="#cheatsheet"><span class="nav-icon">16</span> Cheat Sheet</a>
-    <a href="#quiz"><span class="nav-icon">17</span> Quiz</a>
-    <a href="#interview-qs"><span class="nav-icon">18</span> Interview Q&A</a>
-    <a href="#live-coding"><span class="nav-icon">19</span> Live Coding</a>
+    <a href="#cheatsheet"><span class="nav-icon">21</span> Cheat Sheet</a>
+    <a href="#quiz"><span class="nav-icon">22</span> Quiz</a>
+    <a href="#interview-qs"><span class="nav-icon">23</span> Interview Q&A</a>
+    <a href="#live-coding"><span class="nav-icon">24</span> Live Coding</a>
   </div>
 </nav>
 
@@ -401,6 +410,13 @@ tr:hover td{background:var(--bg3)}
   <a href="#theme-app-ext">App Extensions</a>
   <a href="#checkout">Checkout</a>
   <a href="#js-patterns">JS Patterns</a>
+  <div class="nav-divider"></div>
+  <div class="nav-group-title">Senior Engineer</div>
+  <a href="#app-arch">App Architecture</a>
+  <a href="#api-webhooks">API & Webhooks</a>
+  <a href="#data-reliability">Data & Reliability</a>
+  <a href="#tradeoffs">Tradeoffs & Business</a>
+  <a href="#senior-quiz">Senior Quiz</a>
   <div class="nav-divider"></div>
   <div class="nav-group-title">Practice & Review</div>
   <a href="#cheatsheet">Cheat Sheet</a>
@@ -3077,9 +3093,535 @@ new CartDrawer();
   </div>
 </section>
 
+<!-- ===== APP ARCHITECTURE ===== -->
+<section id="app-arch">
+  <h2><span class="num">20</span> Shopify App Architecture</h2>
+  <p>You already build Shopify apps with Laravel. Here's the architecture knowledge a senior dev must articulate in an interview.</p>
+
+  <h3>App Types</h3>
+  <div class="card-grid">
+    <div class="mini-card">
+      <h4>Public Apps</h4>
+      <p>Distributed via App Store. Must pass review. OAuth required. Since April 2025: <strong>GraphQL only</strong> for new public apps. By April 2026: must use expiring offline tokens.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Custom Apps</h4>
+      <p>Single store. Created via Partner Dashboard or Admin. Can use admin-generated tokens or OAuth. Functions require <strong>Shopify Plus</strong>.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Private Apps</h4>
+      <p><span class="badge red">Deprecated Jan 2022</span> Auto-converted to custom apps. Used basic HTTP auth. If you see these in legacy systems, migrate immediately.</p>
+    </div>
+  </div>
+
+  <h3>Embedded App Architecture</h3>
+  <div class="diagram">
+    <div class="flow">
+      <div class="flow-item green">Shopify Admin<small>Parent frame</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item blue">iframe<small>Your app URL</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item purple">App Bridge<small>Session token JWT</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item yellow">Your Backend<small>Validates JWT</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item orange">Shopify API<small>Access token</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>Session Token Flow (Modern - No Cookies)</h4>
+    <pre><code><span class="comment">// 1. App Bridge auto-generates JWT (1 min lifetime)</span>
+<span class="comment">// 2. authenticatedFetch sends it as Bearer token</span>
+<span class="comment">// 3. Your backend validates + exchanges for access token</span>
+
+<span class="comment">// JWT payload:</span>
+{
+  "iss": "https://store.myshopify.com/admin",
+  "dest": "https://store.myshopify.com",
+  "aud": "YOUR_API_KEY",
+  "sub": "user_id",
+  "exp": 1234567890,   <span class="comment">// 1 minute lifetime!</span>
+  "sid": "session-id"
+}
+
+<span class="comment">// Token exchange (your backend -> Shopify):</span>
+POST https://{shop}/admin/oauth/access_token
+{
+  "client_id": "API_KEY",
+  "client_secret": "API_SECRET",
+  "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
+  "subject_token": "{session_token_jwt}",
+  "subject_token_type": "urn:ietf:params:oauth:token-type:id_token",
+  "requested_token_type": "urn:shopify:params:oauth:token-type:offline-access-token"
+}</code></pre>
+    <div class="tip red">
+      <div class="tip-icon">&#9888;</div>
+      <div class="tip-text"><strong>Session tokens != Access tokens.</strong> Session tokens authenticate frontend-to-YOUR-backend. Access tokens authenticate YOUR-backend-to-Shopify-API. Never use session tokens to call Shopify APIs directly.</div>
+    </div>
+  </div>
+
+  <h3>Online vs Offline Access Tokens</h3>
+  <div class="compare">
+    <div class="compare-col modern" style="border:1px solid var(--blue);border-radius:10px">
+      <h4 style="color:var(--blue)">Online Tokens</h4>
+      <ul>
+        <li>Tied to individual user session</li>
+        <li>Expires when user logs out or 24h</li>
+        <li>Respects staff member permissions</li>
+        <li>Use for: embedded admin UI</li>
+      </ul>
+    </div>
+    <div class="compare-col modern" style="border:1px solid var(--green);border-radius:10px">
+      <h4>Offline Tokens</h4>
+      <ul>
+        <li>Tied to the store (app installation)</li>
+        <li>Now: 24h expiry + 90-day refresh token</li>
+        <li>Full app scopes regardless of user</li>
+        <li>Use for: webhooks, cron jobs, background sync</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Extension Types</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Extension</th><th>Where</th><th>Language</th><th>Key Detail</th></tr>
+    <tr><td>Theme App Extension</td><td>Storefront</td><td>Liquid + CSS/JS</td><td>App blocks in sections, app embeds globally</td></tr>
+    <tr><td>Checkout UI Extension</td><td>Checkout</td><td>Preact/JSX</td><td>64KB limit, Plus-only for payment steps</td></tr>
+    <tr><td>Admin UI Extension</td><td>Admin panels</td><td>Preact/JSX</td><td>Blocks, actions, selection actions on resources</td></tr>
+    <tr><td>Shopify Functions</td><td>Server-side (edge)</td><td>Rust/JS &rarr; Wasm</td><td>&lt;5ms, no network, 11M instruction limit</td></tr>
+  </table></div>
+
+  <h3>GDPR Mandatory Webhooks</h3>
+  <div class="card">
+    <p style="font-size:.9rem;color:var(--text2);margin-bottom:12px"><strong>Every app must implement these 3 webhooks or it gets rejected from the App Store:</strong></p>
+    <div class="table-wrap"><table>
+      <tr><th>Topic</th><th>Trigger</th><th>Action Required</th></tr>
+      <tr><td><code>customers/data_request</code></td><td>Customer requests their data</td><td>Provide all stored data within 30 days</td></tr>
+      <tr><td><code>customers/redact</code></td><td>Customer requests deletion</td><td>Delete customer data within 30 days</td></tr>
+      <tr><td><code>shop/redact</code></td><td>48h after app uninstall</td><td>Erase ALL store data within 30 days</td></tr>
+    </table></div>
+  </div>
+
+  <div class="interview-tip">
+    <h4>Interview Tip</h4>
+    <p>"Why session tokens over cookies?" &rarr; Third-party cookie deprecation. Embedded apps run in iframes, and browsers block cross-origin cookies. Session tokens (JWTs via App Bridge) solve this without cookies.</p>
+  </div>
+</section>
+
+<!-- ===== API & WEBHOOKS ===== -->
+<section id="api-webhooks">
+  <h2><span class="num">21</span> API Design & Webhooks</h2>
+
+  <h3>REST vs GraphQL Admin API</h3>
+  <div class="compare">
+    <div class="compare-col legacy">
+      <h4>REST Admin API (Legacy)</h4>
+      <ul>
+        <li>Multiple endpoints per resource</li>
+        <li>Fixed response shape (over-fetching)</li>
+        <li>Rate limit: 40 req/60s (bucket)</li>
+        <li>No bulk operations</li>
+        <li>New public apps CANNOT use REST (April 2025)</li>
+      </ul>
+    </div>
+    <div class="compare-col modern">
+      <h4>GraphQL Admin API (Required)</h4>
+      <ul>
+        <li>Single endpoint, request exact fields</li>
+        <li>Cost-based rate limiting (more efficient)</li>
+        <li>Native bulk operations (bypass rate limits)</li>
+        <li>Gets new features first (or exclusively)</li>
+        <li>Cursor-based pagination (Relay spec)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>GraphQL Rate Limiting</h3>
+  <div class="card">
+    <p style="font-size:.9rem;color:var(--text2);margin-bottom:12px">Leaky bucket based on <strong>query cost</strong>, not request count:</p>
+    <div class="table-wrap"><table>
+      <tr><th>Plan</th><th>Bucket Size</th><th>Restore Rate</th></tr>
+      <tr><td>Standard</td><td>1,000 points</td><td>50 pts/sec</td></tr>
+      <tr><td>Advanced</td><td>2,000 points</td><td>100 pts/sec</td></tr>
+      <tr><td>Plus</td><td>10,000 points</td><td>500 pts/sec</td></tr>
+    </table></div>
+    <pre><code><span class="comment">// Every response includes cost info:</span>
+{
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 152,   <span class="comment">// estimated before execution</span>
+      "actualQueryCost": 48,       <span class="comment">// actual (refund difference)</span>
+      "throttleStatus": {
+        "maximumAvailable": 1000,
+        "currentlyAvailable": 852,
+        "restoreRate": 50
+      }
+    }
+  }
+}
+
+<span class="comment">// Single query max: 1,000 points (hard cap)</span>
+<span class="comment">// REST: 40 requests per 60 seconds per store</span></code></pre>
+  </div>
+
+  <h3>Webhook Architecture</h3>
+  <div class="render-pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">1</div>
+      <div class="pipe-text"><strong>Event Occurs</strong><span>e.g., <code>orders/create</code> fires when a new order is placed</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">2</div>
+      <div class="pipe-text"><strong>Shopify POSTs</strong><span>Sends payload to your HTTPS endpoint (or Pub/Sub / EventBridge)</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">3</div>
+      <div class="pipe-text"><strong>You Verify HMAC</strong><span><code>X-Shopify-Hmac-SHA256</code> = HMAC-SHA256 of raw body with client secret</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">4</div>
+      <div class="pipe-text"><strong>Respond 200 Immediately</strong><span>Shopify waits only <strong>5 seconds</strong>. Queue the payload, process async.</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">5</div>
+      <div class="pipe-text"><strong>Deduplicate</strong><span>Check <code>X-Shopify-Event-Id</code> header. Same ID on retries. Store in Redis with TTL.</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">6</div>
+      <div class="pipe-text"><strong>Process Idempotently</strong><span>Same event processed twice must produce same result. Use timestamps, not order of arrival.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>Key Webhook Headers</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Header</th><th>Purpose</th></tr>
+      <tr><td><code>X-Shopify-Hmac-SHA256</code></td><td>HMAC signature (verify authenticity)</td></tr>
+      <tr><td><code>X-Shopify-Topic</code></td><td>Event type: <code>orders/create</code></td></tr>
+      <tr><td><code>X-Shopify-Event-Id</code></td><td>Unique per event (use for deduplication)</td></tr>
+      <tr><td><code>X-Shopify-Triggered-At</code></td><td>Timestamp of event (use for ordering)</td></tr>
+      <tr><td><code>X-Shopify-Shop-Domain</code></td><td>Store domain</td></tr>
+    </table></div>
+    <p style="font-size:.85rem;color:var(--text2);margin-top:10px"><strong>Retry policy:</strong> 8 retries over 4 hours. After 8 failures: subscription auto-deleted. <strong>Delivery:</strong> at-least-once, no ordering guarantee.</p>
+  </div>
+
+  <h3>Bulk Operations</h3>
+  <div class="card">
+    <pre><code><span class="comment">// Bulk query - bypasses rate limits entirely</span>
+mutation {
+  bulkOperationRunQuery(query: """
+    { products { edges { node { id title variants { edges { node { id price } } } } } } }
+  """) {
+    bulkOperation { id status }
+    userErrors { field message }
+  }
+}
+
+<span class="comment">// Results: JSONL file, download URL valid 7 days</span>
+<span class="comment">// Monitor via: bulk_operations/finish webhook</span>
+<span class="comment">// Up to 5 concurrent bulk ops per shop (API 2026-01)</span>
+
+<span class="comment">// When to use:</span>
+<span class="comment">// - Data > 250 records</span>
+<span class="comment">// - Full catalog sync</span>
+<span class="comment">// - Migration / import tasks</span></code></pre>
+  </div>
+</section>
+
+<!-- ===== DATA & RELIABILITY ===== -->
+<section id="data-reliability">
+  <h2><span class="num">22</span> Data Consistency & Reliability</h2>
+
+  <h3>Eventual Consistency Pattern</h3>
+  <div class="card">
+    <p style="font-size:.9rem;color:var(--text2);margin-bottom:16px">Shopify is <strong>eventually consistent</strong>. Webhooks can arrive out of order, be duplicated, or be lost entirely. A senior dev must design for this.</p>
+    <pre><code><span class="comment">// The reliable pattern: Webhooks + Polling Fallback</span>
+
+<span class="comment">// Layer 1: Real-time webhooks (primary)</span>
+POST /webhooks/orders-create
+  &rarr; Validate HMAC
+  &rarr; Check X-Shopify-Event-Id (dedup in Redis, 24h TTL)
+  &rarr; Respond 200 immediately
+  &rarr; Queue for async processing
+  &rarr; Process idempotently (check updated_at timestamp)
+
+<span class="comment">// Layer 2: Reconciliation polling (safety net)</span>
+<span class="comment">// Every 5-15 minutes:</span>
+query {
+  orders(query: "updated_at:>='2026-03-29T00:00:00Z'") {
+    edges { node { id updatedAt } }
+  }
+}
+<span class="comment">// Use 5-min overlap buffer for clock skew</span>
+
+<span class="comment">// Layer 3: Full sync (weekly backup)</span>
+<span class="comment">// bulkOperationRunQuery for complete data reconciliation</span></code></pre>
+  </div>
+
+  <h3>Data Storage Decision Matrix</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Need</th><th>Solution</th><th>Why</th></tr>
+    <tr><td>Custom field on product/order</td><td>Metafield (app-owned)</td><td>Renders in Liquid, visible in admin, filterable</td></tr>
+    <tr><td>New custom entity</td><td>Metaobject</td><td>Like a custom DB table in Shopify, gets URL routing</td></tr>
+    <tr><td>Per-install config</td><td>App-data metafield</td><td>Hidden from admin, scoped to your app</td></tr>
+    <tr><td>High-volume data</td><td>External DB (Postgres)</td><td>Complex queries, joins, no API rate limits</td></tr>
+    <tr><td>Sensitive credentials</td><td>External encrypted storage</td><td>Never store secrets in metafields</td></tr>
+  </table></div>
+
+  <h3>Idempotency</h3>
+  <div class="card">
+    <pre><code><span class="comment">// GraphQL mutations support Idempotency-Key header</span>
+<span class="comment">// Shopify caches response for 60 seconds per key</span>
+
+fetch('/admin/api/2026-01/graphql.json', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Shopify-Access-Token': token,
+    'Idempotency-Key': 'unique-uuid-per-operation'  <span class="comment">// never reuse</span>
+  },
+  body: JSON.stringify({ query: mutation })
+});
+
+<span class="comment">// For webhooks: use X-Shopify-Event-Id as dedup key</span>
+<span class="comment">// For your own jobs: generate UUID, store in DB before executing</span></code></pre>
+  </div>
+
+  <h3>Reliability Patterns</h3>
+  <div class="card-grid">
+    <div class="mini-card">
+      <h4>Queue-First Webhooks</h4>
+      <p>Respond 200 instantly. Push to Redis/SQS queue. Worker processes async. Shopify's 5-second timeout means no heavy processing inline.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Exponential Backoff</h4>
+      <p>On 429 (rate limited): wait 2^n seconds. Monitor <code>extensions.cost.throttleStatus</code> in every GraphQL response to predict limits.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Graceful Degradation</h4>
+      <p>If Shopify API is down, serve cached data. Never let API failures break the merchant's storefront. Cache metafields locally.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Webhook Reconciliation</h4>
+      <p>Webhooks can be lost. Poll with <code>updated_at</code> filter every 5-15 min. Use bulk operations for full sync weekly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TRADEOFFS & BUSINESS ===== -->
+<section id="tradeoffs">
+  <h2><span class="num">23</span> Technical Tradeoffs & Business Value</h2>
+  <p>Senior engineers don't just pick technologies - they explain <strong>why</strong> in terms of business impact.</p>
+
+  <div class="card" style="border-left:4px solid var(--purple)">
+    <h4 style="color:var(--purple)">Embedded vs Standalone App</h4>
+    <div class="compare" style="margin-top:12px">
+      <div class="compare-col modern" style="border:1px solid var(--green);border-radius:10px">
+        <h4>Embedded (Recommended)</h4>
+        <ul>
+          <li>Runs inside Shopify Admin iframe</li>
+          <li>Native look with Polaris + App Bridge</li>
+          <li>Session token auth (no cookies)</li>
+          <li>Required for "Built for Shopify" badge</li>
+        </ul>
+      </div>
+      <div class="compare-col modern" style="border:1px solid var(--yellow);border-radius:10px">
+        <h4 style="color:var(--yellow)">Standalone</h4>
+        <ul>
+          <li>Own domain, own design</li>
+          <li>Cookie-based sessions work</li>
+          <li>Better for complex dashboards / external users</li>
+          <li>Loses admin integration benefits</li>
+        </ul>
+      </div>
+    </div>
+    <p style="font-size:.85rem;color:var(--text2);margin-top:12px"><strong>Business value:</strong> Embedded = lower merchant friction, higher retention. Merchants don't leave the admin. "Built for Shopify" badge increases trust and install rate.</p>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--green)">
+    <h4 style="color:var(--green)">Webhooks vs Polling</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Factor</th><th>Webhooks</th><th>Polling</th></tr>
+      <tr><td>Latency</td><td>Near real-time</td><td>Delayed (interval-based)</td></tr>
+      <tr><td>Reliability</td><td>Can lose events</td><td>Catches everything eventually</td></tr>
+      <tr><td>API cost</td><td>Zero (push-based)</td><td>Consumes rate limit budget</td></tr>
+      <tr><td>Ordering</td><td>Not guaranteed</td><td>You control the order</td></tr>
+    </table></div>
+    <p style="font-size:.85rem;color:var(--text2);margin-top:8px"><strong>Senior answer:</strong> "Use both. Webhooks for real-time reactivity, polling as a safety net for missed events. This gives us speed AND reliability."</p>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--yellow)">
+    <h4 style="color:var(--yellow)">Metafields vs External Database</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Factor</th><th>Metafields</th><th>External DB</th></tr>
+      <tr><td>Access in Liquid</td><td>Direct: <code>product.metafields.app.key</code></td><td>Need app proxy or API call</td></tr>
+      <tr><td>Admin visibility</td><td>Visible to merchants</td><td>Hidden</td></tr>
+      <tr><td>Query complexity</td><td>Limited (no joins)</td><td>Full SQL power</td></tr>
+      <tr><td>Rate limits</td><td>Counts against API limits</td><td>Your own limits</td></tr>
+      <tr><td>Data volume</td><td>Good for small-medium</td><td>Unlimited</td></tr>
+    </table></div>
+    <p style="font-size:.85rem;color:var(--text2);margin-top:8px"><strong>Senior answer:</strong> "Metafields for data merchants need to see or that renders in themes. External DB for high-volume analytics, complex queries, or sensitive data."</p>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--blue)">
+    <h4 style="color:var(--blue)">Theme App Extension vs ScriptTag (Legacy)</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Factor</th><th>Theme App Extension</th><th>ScriptTag</th></tr>
+      <tr><td>Theme editor</td><td>Drag-and-drop by merchant</td><td>Invisible, injected</td></tr>
+      <tr><td>Performance</td><td>Assets on Shopify CDN</td><td>External script, blocks rendering</td></tr>
+      <tr><td>Uninstall cleanup</td><td>Automatic</td><td>May leave orphaned scripts</td></tr>
+      <tr><td>OS 2.0 themes</td><td>Full support</td><td>Works but discouraged</td></tr>
+    </table></div>
+    <p style="font-size:.85rem;color:var(--text2);margin-top:8px"><strong>Business value:</strong> Theme app extensions = better Lighthouse scores (CDN-hosted), cleaner uninstall, merchant control. All translate to higher merchant satisfaction and fewer support tickets.</p>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--orange)">
+    <h4 style="color:var(--orange)">Shopify Functions vs Custom Backend Logic</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Factor</th><th>Shopify Functions</th><th>Custom Backend</th></tr>
+      <tr><td>Execution</td><td>Shopify edge, &lt;5ms</td><td>Your server, variable latency</td></tr>
+      <tr><td>Reliability</td><td>Shopify manages uptime</td><td>You manage uptime</td></tr>
+      <tr><td>Flexibility</td><td>No network, no state, 11M instructions</td><td>Full flexibility</td></tr>
+      <tr><td>Use cases</td><td>Discounts, payment, delivery, cart</td><td>Everything else</td></tr>
+    </table></div>
+    <p style="font-size:.85rem;color:var(--text2);margin-top:8px"><strong>Senior answer:</strong> "Functions for checkout-critical logic where latency matters and Shopify guarantees uptime. Backend for everything that needs network access, state, or complex business logic."</p>
+  </div>
+
+  <div class="interview-tip">
+    <h4>The Framework for Any Tradeoff Question</h4>
+    <p>1. State both options clearly. 2. Name the tradeoff axis (latency vs flexibility, simplicity vs control, etc.). 3. State your recommendation. 4. <strong>Tie it to business value</strong>: conversion rate, page speed, merchant UX, developer velocity, maintenance cost, or reliability.</p>
+  </div>
+</section>
+
+<!-- ===== SENIOR QUIZ ===== -->
+<section id="senior-quiz">
+  <h2><span class="num">24</span> Senior Engineer Quiz</h2>
+
+  <div class="quiz" id="seniorQuizContainer">
+    <h3>Test Your Senior-Level Knowledge</h3>
+
+    <div class="quiz-q" data-answer="b">
+      <p>1. Since April 2025, new public Shopify apps must use which API?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq1" value="a"> REST Admin API</label>
+        <label><input type="radio" name="sq1" value="b"> GraphQL Admin API exclusively</label>
+        <label><input type="radio" name="sq1" value="c"> Storefront API</label>
+        <label><input type="radio" name="sq1" value="d"> Either REST or GraphQL</label>
+      </div>
+      <div class="quiz-result" id="sq1-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="c">
+      <p>2. What is the lifetime of a session token JWT from App Bridge?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq2" value="a"> 24 hours</label>
+        <label><input type="radio" name="sq2" value="b"> 5 minutes</label>
+        <label><input type="radio" name="sq2" value="c"> 1 minute</label>
+        <label><input type="radio" name="sq2" value="d"> Until the browser tab closes</label>
+      </div>
+      <div class="quiz-result" id="sq2-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="a">
+      <p>3. How should you handle webhook processing to avoid Shopify's 5-second timeout?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq3" value="a"> Respond 200 immediately, queue for async processing</label>
+        <label><input type="radio" name="sq3" value="b"> Process synchronously and respond when done</label>
+        <label><input type="radio" name="sq3" value="c"> Request a timeout extension via API</label>
+        <label><input type="radio" name="sq3" value="d"> Send a 102 Processing status and continue</label>
+      </div>
+      <div class="quiz-result" id="sq3-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="d">
+      <p>4. Which header do you use to deduplicate webhook retries?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq4" value="a"> X-Shopify-Hmac-SHA256</label>
+        <label><input type="radio" name="sq4" value="b"> X-Shopify-Topic</label>
+        <label><input type="radio" name="sq4" value="c"> X-Shopify-Triggered-At</label>
+        <label><input type="radio" name="sq4" value="d"> X-Shopify-Event-Id</label>
+      </div>
+      <div class="quiz-result" id="sq4-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="b">
+      <p>5. What happens after 8 consecutive webhook delivery failures?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq5" value="a"> Shopify sends an email alert</label>
+        <label><input type="radio" name="sq5" value="b"> The webhook subscription is automatically deleted</label>
+        <label><input type="radio" name="sq5" value="c"> Webhooks pause for 24 hours then retry</label>
+        <label><input type="radio" name="sq5" value="d"> Shopify falls back to polling</label>
+      </div>
+      <div class="quiz-result" id="sq5-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="c">
+      <p>6. What is the GraphQL Admin API rate limit bucket size for standard plans?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq6" value="a"> 40 requests</label>
+        <label><input type="radio" name="sq6" value="b"> 500 cost points</label>
+        <label><input type="radio" name="sq6" value="c"> 1,000 cost points</label>
+        <label><input type="radio" name="sq6" value="d"> 10,000 cost points</label>
+      </div>
+      <div class="quiz-result" id="sq6-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="a">
+      <p>7. Why should you use both webhooks AND polling for data sync?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq7" value="a"> Webhooks provide speed but can be lost; polling catches missed events</label>
+        <label><input type="radio" name="sq7" value="b"> Shopify requires both methods to be implemented</label>
+        <label><input type="radio" name="sq7" value="c"> Webhooks only work for orders, polling for everything else</label>
+        <label><input type="radio" name="sq7" value="d"> Polling is faster than webhooks</label>
+      </div>
+      <div class="quiz-result" id="sq7-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="b">
+      <p>8. Which access token type should you use for background cron jobs?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq8" value="a"> Online access token</label>
+        <label><input type="radio" name="sq8" value="b"> Offline access token</label>
+        <label><input type="radio" name="sq8" value="c"> Session token</label>
+        <label><input type="radio" name="sq8" value="d"> Storefront access token</label>
+      </div>
+      <div class="quiz-result" id="sq8-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="d">
+      <p>9. Shopify Functions execute as what runtime format?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq9" value="a"> Node.js</label>
+        <label><input type="radio" name="sq9" value="b"> Docker containers</label>
+        <label><input type="radio" name="sq9" value="c"> Ruby scripts</label>
+        <label><input type="radio" name="sq9" value="d"> WebAssembly (Wasm)</label>
+      </div>
+      <div class="quiz-result" id="sq9-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="c">
+      <p>10. Which GDPR webhook is sent 48 hours after app uninstall?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="sq10" value="a"> customers/data_request</label>
+        <label><input type="radio" name="sq10" value="b"> customers/redact</label>
+        <label><input type="radio" name="sq10" value="c"> shop/redact</label>
+        <label><input type="radio" name="sq10" value="d"> app/uninstalled</label>
+      </div>
+      <div class="quiz-result" id="sq10-result"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="quiz-btn" onclick="checkSeniorQuiz()">Check All Answers</button>
+      <button class="quiz-btn" onclick="resetSeniorQuiz()" style="background:var(--bg4);color:var(--text2)">Reset &amp; Shuffle</button>
+    </div>
+    <div id="seniorQuizScore" style="margin-top:16px;font-size:1.1rem;font-weight:700"></div>
+  </div>
+</section>
+
 <!-- ===== FINAL TIPS ===== -->
 <section id="final-tips">
-  <h2><span class="num">19</span> Final Tips for Your Interview</h2>
+  <h2><span class="num">25</span> Final Tips for Your Interview</h2>
 
   <div class="card-grid">
     <div class="card" style="border-left:4px solid var(--green)">
@@ -3253,6 +3795,63 @@ const observer = new IntersectionObserver(entries => {
 }, { rootMargin: '-15% 0px -85% 0px' });
 sections.forEach(s => observer.observe(s));
 
+
+// === Senior Quiz ===
+function checkSeniorQuiz() {
+  let score = 0;
+  const questions = document.querySelectorAll('#seniorQuizContainer .quiz-q');
+  const total = questions.length;
+  questions.forEach((q, idx) => {
+    const i = idx + 1;
+    const answer = q.dataset.answer;
+    const selected = q.querySelector(`input[name="sq${i}"]:checked`);
+    const resultEl = document.getElementById(`sq${i}-result`);
+    if (selected && selected.value === answer) {
+      resultEl.className = 'quiz-result correct';
+      resultEl.textContent = 'Correct!';
+      score++;
+    } else {
+      resultEl.className = 'quiz-result wrong';
+      resultEl.textContent = `Incorrect. Correct answer: ${answer.toUpperCase()}`;
+    }
+  });
+  const scoreEl = document.getElementById('seniorQuizScore');
+  scoreEl.textContent = `Score: ${score}/${total} (${Math.round(score/total*100)}%)`;
+  scoreEl.style.color = score >= 7 ? 'var(--green)' : score >= 5 ? 'var(--yellow)' : 'var(--red)';
+}
+
+function resetSeniorQuiz() {
+  const container = document.getElementById('seniorQuizContainer');
+  container.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+  container.querySelectorAll('.quiz-result').forEach(r => { r.className = 'quiz-result'; r.textContent = ''; r.style.display = 'none'; });
+  document.getElementById('seniorQuizScore').textContent = '';
+  // Shuffle options
+  container.querySelectorAll('.quiz-q').forEach(q => {
+    const opts = q.querySelector('.quiz-opts');
+    const labels = [...opts.querySelectorAll('label')];
+    for (let i = labels.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [labels[i], labels[j]] = [labels[j], labels[i]];
+    }
+    labels.forEach(l => opts.appendChild(l));
+  });
+  // Shuffle questions
+  const questions = [...container.querySelectorAll('.quiz-q')];
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j], questions[i]];
+  }
+  const btnRow = container.querySelector('div[style*="flex"]');
+  questions.forEach((q, idx) => {
+    const num = idx + 1;
+    const p = q.querySelector('p');
+    p.innerHTML = p.innerHTML.replace(/^\d+\./, num + '.');
+    q.querySelectorAll('input[type="radio"]').forEach(r => r.name = 'sq' + num);
+    q.querySelector('.quiz-result').id = 'sq' + num + '-result';
+    container.insertBefore(q, btnRow);
+  });
+  document.getElementById('senior-quiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 // === Live Coding Challenges ===
 const challengeChecks = {
