@@ -3222,7 +3222,7 @@ function resetQuiz() {
     quiz.insertBefore(q, btnRow);
   });
 
-  window.scrollTo({ top: quiz.offsetTop - 80, behavior: 'smooth' });
+  document.getElementById('quiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // === Toggle interview answers ===
