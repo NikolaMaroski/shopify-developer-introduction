@@ -207,6 +207,58 @@ tr:hover td{background:var(--bg3)}
 .sidebar a{display:block;padding:6px 12px;font-size:.8rem;color:var(--text3);border-radius:6px;margin-bottom:2px;transition:all .2s}
 .sidebar a:hover,.sidebar a.active{color:var(--green);background:var(--bg3);text-decoration:none}
 
+/* ===== LIVE CODING ===== */
+.challenge{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;overflow:hidden}
+.challenge-header{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;background:var(--bg3);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.challenge-header h4{margin:0;font-size:1rem}
+.challenge-meta{display:flex;gap:8px;align-items:center}
+.difficulty{padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700}
+.difficulty.easy{background:rgba(94,234,212,.15);color:var(--green)}
+.difficulty.medium{background:rgba(251,191,36,.15);color:var(--yellow)}
+.difficulty.hard{background:rgba(248,113,113,.15);color:var(--red)}
+.challenge-timer{font-family:monospace;font-size:.9rem;color:var(--yellow);min-width:60px;text-align:right}
+.challenge-body{padding:20px}
+.challenge-body>p{font-size:.9rem;color:var(--text2);margin-bottom:16px;line-height:1.6}
+.challenge-body .requirements{background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:16px}
+.challenge-body .requirements h5{color:var(--accent2);font-size:.85rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.challenge-body .requirements ul{padding-left:20px;font-size:.85rem;color:var(--text2);line-height:1.8}
+.code-editor{position:relative;margin:12px 0}
+.code-editor textarea{width:100%;min-height:220px;background:var(--code-bg);color:var(--green);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:'Fira Code','Cascadia Code','JetBrains Mono',monospace;font-size:.85rem;line-height:1.6;resize:vertical;outline:none;tab-size:2}
+.code-editor textarea:focus{border-color:var(--green)}
+.code-editor textarea::placeholder{color:var(--text3)}
+.editor-label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.challenge-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{padding:9px 20px;border-radius:8px;border:none;font-weight:600;font-size:.85rem;cursor:pointer;transition:all .2s}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn-green{background:var(--green);color:var(--bg)}
+.btn-yellow{background:var(--yellow);color:var(--bg)}
+.btn-purple{background:var(--purple);color:white}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.hint-box{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:14px;margin-top:12px;font-size:.85rem;color:var(--yellow);display:none}
+.solution-box{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:10px;margin-top:12px;display:none;overflow:hidden}
+.solution-box .solution-header{padding:10px 14px;background:rgba(94,234,212,.08);font-size:.8rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid rgba(94,234,212,.15)}
+.solution-box pre{margin:0;border:none;border-radius:0;background:transparent}
+.feedback-box{border-radius:10px;padding:16px;margin-top:12px;display:none}
+.feedback-box.pass{background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.25)}
+.feedback-box.partial{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25)}
+.feedback-box.fail{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25)}
+.feedback-box h5{margin:0 0 6px;font-size:.9rem}
+.feedback-box.pass h5{color:var(--green)}
+.feedback-box.partial h5{color:var(--yellow)}
+.feedback-box.fail h5{color:var(--red)}
+.feedback-box ul{padding-left:20px;font-size:.85rem;color:var(--text2);line-height:1.7}
+.feedback-box .score-label{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:700;margin-top:8px}
+.overall-score{background:var(--bg2);border:2px solid var(--green);border-radius:var(--radius);padding:24px;text-align:center;margin-top:30px}
+.overall-score .big-score{font-size:3rem;font-weight:900;margin:10px 0}
+.overall-score .big-score.green{color:var(--green)}
+.overall-score .big-score.yellow{color:var(--yellow)}
+.overall-score .big-score.red{color:var(--red)}
+.overall-score .verdict{font-size:1.1rem;color:var(--text2)}
+.overall-score .breakdown{display:flex;justify-content:center;gap:24px;margin-top:16px;flex-wrap:wrap}
+.overall-score .breakdown div{text-align:center}
+.overall-score .breakdown .num{font-size:1.5rem;font-weight:800;display:block}
+.overall-score .breakdown .lbl{font-size:.75rem;color:var(--text3);text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -236,6 +288,7 @@ tr:hover td{background:var(--bg3)}
     <a href="#cheatsheet">Cheat Sheet</a>
     <a href="#quiz">Quiz</a>
     <a href="#interview-qs">Interview Q&A</a>
+    <a href="#live-coding">Live Coding</a>
   </div>
 </nav>
 <div class="progress-bar" id="progressBar"></div>
@@ -1950,9 +2003,964 @@ customElements.define('predictive-search', PredictiveSearch);</code></pre>
   </div>
 </section>
 
+<!-- ===== LIVE CODING CHALLENGES ===== -->
+<section id="live-coding">
+  <h2><span class="num">18</span> Live Coding Challenges</h2>
+  <p>Simulate a real interview. Write code, check your answer, and get scored. Each challenge has a timer, hints, and a model solution. Try to solve before peeking!</p>
+
+  <div class="tip purple" style="margin-bottom:24px">
+    <div class="tip-icon">&#128187;</div>
+    <div class="tip-text">
+      <strong>How it works:</strong> Read the prompt, write your code in the editor, click "Check My Code" to get scored. The checker looks for key patterns a senior dev would include. Use "Hint" if stuck, "Show Solution" to learn. Your overall interview readiness score is at the bottom.
+    </div>
+  </div>
+
+  <!-- CHALLENGE 1: Product Card Snippet -->
+  <div class="challenge" id="ch1">
+    <div class="challenge-header">
+      <h4>Challenge 1: Product Card Snippet</h4>
+      <div class="challenge-meta">
+        <span class="difficulty easy">Easy</span>
+        <span class="badge blue">Liquid</span>
+        <span class="challenge-timer" id="timer1">05:00</span>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p><strong>Interviewer:</strong> "Create a reusable product card snippet (<code>snippets/product-card.liquid</code>) that displays a product's image, title, price, and a sale badge when the product is on sale. The snippet should accept a product variable passed via <code>{% render %}</code>."</p>
+      <div class="requirements">
+        <h5>Requirements</h5>
+        <ul>
+          <li>Use <code>image_url</code> and <code>image_tag</code> filters for responsive images with lazy loading</li>
+          <li>Display product title as a link to the product page</li>
+          <li>Show current price with the <code>money</code> filter</li>
+          <li>Show compare-at price (strikethrough) and a "Sale" badge when on sale</li>
+          <li>Handle the case where the product has no image</li>
+        </ul>
+      </div>
+      <div class="code-editor">
+        <div class="editor-label">
+          <span>snippets/product-card.liquid</span>
+          <button class="btn btn-ghost" onclick="startTimer('timer1', 300)" style="padding:4px 10px;font-size:.75rem">Start Timer</button>
+        </div>
+        <textarea id="code1" placeholder="Write your Liquid code here..."></textarea>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-green" onclick="checkChallenge(1)">Check My Code</button>
+        <button class="btn btn-yellow" onclick="showHint(1)">Hint</button>
+        <button class="btn btn-purple" onclick="showSolution(1)">Show Solution</button>
+        <button class="btn btn-ghost" onclick="resetChallenge(1)">Reset</button>
+      </div>
+      <div class="hint-box" id="hint1">
+        <strong>Hints:</strong> (1) Check <code>product.compare_at_price > product.price</code> for sale. (2) Use <code>product.featured_image | image_url: width: 600 | image_tag</code> for images. (3) Use <code>product.url</code> for the link. (4) Wrap in a semantic element like <code>&lt;article&gt;</code> or <code>&lt;div class="product-card"&gt;</code>.
+      </div>
+      <div class="feedback-box" id="feedback1"></div>
+      <div class="solution-box" id="solution1">
+        <div class="solution-header">Model Solution</div>
+        <pre><code>&lt;div class="product-card"&gt;
+  &lt;a href="{{ product.url }}" class="product-card__link"&gt;
+    &lt;div class="product-card__image"&gt;
+      {% if product.featured_image %}
+        {{ product.featured_image
+          | image_url: width: 600
+          | image_tag:
+            loading: 'lazy',
+            widths: '200,400,600',
+            sizes: '(max-width: 768px) 50vw, 25vw',
+            alt: product.title
+        }}
+      {% else %}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder' }}
+      {% endif %}
+
+      {% if product.compare_at_price > product.price %}
+        &lt;span class="product-card__badge"&gt;Sale&lt;/span&gt;
+      {% endif %}
+    &lt;/div&gt;
+
+    &lt;div class="product-card__info"&gt;
+      &lt;h3 class="product-card__title"&gt;{{ product.title }}&lt;/h3&gt;
+      &lt;div class="product-card__price"&gt;
+        {% if product.compare_at_price > product.price %}
+          &lt;s&gt;{{ product.compare_at_price | money }}&lt;/s&gt;
+        {% endif %}
+        {{ product.price | money }}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 2: Section Schema -->
+  <div class="challenge" id="ch2">
+    <div class="challenge-header">
+      <h4>Challenge 2: Hero Banner Section Schema</h4>
+      <div class="challenge-meta">
+        <span class="difficulty medium">Medium</span>
+        <span class="badge purple">Schema</span>
+        <span class="challenge-timer" id="timer2">08:00</span>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p><strong>Interviewer:</strong> "Write a complete hero banner section with schema. The merchant should be able to configure: heading text, subheading, background image, button text, button URL, and overlay opacity. Support a 'slide' block type so merchants can add multiple slides. Limit to homepage only."</p>
+      <div class="requirements">
+        <h5>Requirements</h5>
+        <ul>
+          <li>Complete <code>{% schema %}</code> with name, settings, blocks, and presets</li>
+          <li>Include appropriate setting types (text, image_picker, url, range)</li>
+          <li>Slide block with its own image and heading settings</li>
+          <li>Use <code>enabled_on</code> to restrict to index template</li>
+          <li>Render the section HTML with blocks iteration</li>
+          <li>Include <code>{{ block.shopify_attributes }}</code> on block wrappers</li>
+          <li>Use section-scoped CSS with <code>{% style %}</code></li>
+        </ul>
+      </div>
+      <div class="code-editor">
+        <div class="editor-label">
+          <span>sections/hero-banner.liquid</span>
+          <button class="btn btn-ghost" onclick="startTimer('timer2', 480)" style="padding:4px 10px;font-size:.75rem">Start Timer</button>
+        </div>
+        <textarea id="code2" placeholder="Write your complete section with schema here..."></textarea>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-green" onclick="checkChallenge(2)">Check My Code</button>
+        <button class="btn btn-yellow" onclick="showHint(2)">Hint</button>
+        <button class="btn btn-purple" onclick="showSolution(2)">Show Solution</button>
+        <button class="btn btn-ghost" onclick="resetChallenge(2)">Reset</button>
+      </div>
+      <div class="hint-box" id="hint2">
+        <strong>Hints:</strong> (1) Schema goes in <code>{% schema %} ... {% endschema %}</code>. (2) Use <code>"type": "image_picker"</code> for images, <code>"type": "range"</code> for opacity. (3) Blocks are iterated with <code>{% for block in section.blocks %}</code>. (4) <code>"enabled_on": { "templates": ["index"] }</code>. (5) Don't forget presets or the section won't appear in "Add section".
+      </div>
+      <div class="feedback-box" id="feedback2"></div>
+      <div class="solution-box" id="solution2">
+        <div class="solution-header">Model Solution</div>
+        <pre><code>&lt;div class="hero-banner section-{{ section.id }}"&gt;
+  {% for block in section.blocks %}
+    {% case block.type %}
+      {% when 'slide' %}
+        &lt;div class="hero-slide" {{ block.shopify_attributes }}&gt;
+          {% if block.settings.image %}
+            {{ block.settings.image
+              | image_url: width: 1920
+              | image_tag:
+                widths: '768,1024,1920',
+                sizes: '100vw',
+                alt: block.settings.heading
+            }}
+          {% endif %}
+          &lt;div class="hero-slide__overlay"&gt;&lt;/div&gt;
+          &lt;div class="hero-slide__content"&gt;
+            {% if block.settings.heading != blank %}
+              &lt;h2&gt;{{ block.settings.heading }}&lt;/h2&gt;
+            {% endif %}
+            {% if block.settings.subheading != blank %}
+              &lt;p&gt;{{ block.settings.subheading }}&lt;/p&gt;
+            {% endif %}
+            {% if block.settings.button_text != blank %}
+              &lt;a href="{{ block.settings.button_url }}" class="btn"&gt;
+                {{ block.settings.button_text }}
+              &lt;/a&gt;
+            {% endif %}
+          &lt;/div&gt;
+        &lt;/div&gt;
+    {% endcase %}
+  {% endfor %}
+&lt;/div&gt;
+
+{% style %}
+  .section-{{ section.id }} .hero-slide__overlay {
+    background: rgba(0, 0, 0, {{ section.settings.overlay_opacity | divided_by: 100.0 }});
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Hero Banner",
+  "tag": "section",
+  "class": "hero-banner-section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 30,
+      "unit": "%"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Background image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Welcome to our store"
+        },
+        {
+          "type": "textarea",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button text",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Banner",
+      "category": "Image",
+      "blocks": [
+        { "type": "slide" }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["index"]
+  }
+}
+{% endschema %}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 3: Ajax Cart -->
+  <div class="challenge" id="ch3">
+    <div class="challenge-header">
+      <h4>Challenge 3: Add to Cart with Ajax</h4>
+      <div class="challenge-meta">
+        <span class="difficulty medium">Medium</span>
+        <span class="badge blue">JavaScript</span>
+        <span class="challenge-timer" id="timer3">08:00</span>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p><strong>Interviewer:</strong> "Write a Web Component that handles add-to-cart functionality. It should intercept the form submit, call the Ajax API, update the cart drawer using the Section Rendering API, and show loading/error states. Use vanilla JS, no frameworks."</p>
+      <div class="requirements">
+        <h5>Requirements</h5>
+        <ul>
+          <li>Custom Element class extending <code>HTMLElement</code></li>
+          <li>Use <code>connectedCallback</code> to set up event listeners</li>
+          <li>POST to <code>/cart/add.js</code> with <code>FormData</code></li>
+          <li>Include <code>sections</code> parameter for Section Rendering API</li>
+          <li>Handle loading state (disable button, add class)</li>
+          <li>Handle errors gracefully</li>
+          <li>Dispatch custom event so other components can react</li>
+          <li>Register with <code>customElements.define()</code></li>
+        </ul>
+      </div>
+      <div class="code-editor">
+        <div class="editor-label">
+          <span>assets/product-form.js</span>
+          <button class="btn btn-ghost" onclick="startTimer('timer3', 480)" style="padding:4px 10px;font-size:.75rem">Start Timer</button>
+        </div>
+        <textarea id="code3" placeholder="Write your Web Component class here..."></textarea>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-green" onclick="checkChallenge(3)">Check My Code</button>
+        <button class="btn btn-yellow" onclick="showHint(3)">Hint</button>
+        <button class="btn btn-purple" onclick="showSolution(3)">Show Solution</button>
+        <button class="btn btn-ghost" onclick="resetChallenge(3)">Reset</button>
+      </div>
+      <div class="hint-box" id="hint3">
+        <strong>Hints:</strong> (1) <code>class ProductForm extends HTMLElement</code>. (2) Use <code>this.querySelector('form')</code> in constructor. (3) <code>fetch(routes.root + 'cart/add.js', { method:'POST', body: formData })</code>. (4) Add <code>sections</code> to formData or JSON body. (5) <code>document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }))</code>. (6) <code>customElements.define('product-form', ProductForm)</code>.
+      </div>
+      <div class="feedback-box" id="feedback3"></div>
+      <div class="solution-box" id="solution3">
+        <div class="solution-header">Model Solution</div>
+        <pre><code>class ProductForm extends HTMLElement {
+  constructor() {
+    super();
+    this.form = this.querySelector('form');
+    this.submitButton = this.querySelector('[type="submit"]');
+    this.errorMessage = this.querySelector('.error-message');
+  }
+
+  connectedCallback() {
+    this.form.addEventListener('submit', this.onSubmit.bind(this));
+  }
+
+  async onSubmit(event) {
+    event.preventDefault();
+
+    // Loading state
+    this.submitButton.setAttribute('disabled', '');
+    this.submitButton.classList.add('loading');
+    if (this.errorMessage) this.errorMessage.textContent = '';
+
+    const formData = new FormData(this.form);
+
+    try {
+      const response = await fetch(
+        `${window.Shopify.routes.root}cart/add.js`,
+        {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.description || 'Failed to add to cart');
+      }
+
+      const item = await response.json();
+
+      // Fetch updated section HTML via Section Rendering API
+      const sectionsResponse = await fetch(
+        `${window.Shopify.routes.root}cart.js?sections=cart-drawer,cart-icon-bubble`
+      );
+      const cartData = await sectionsResponse.json();
+
+      // Dispatch event for cart drawer and other listeners
+      document.dispatchEvent(
+        new CustomEvent('cart:item-added', {
+          detail: { item, sections: cartData.sections },
+          bubbles: true
+        })
+      );
+    } catch (error) {
+      if (this.errorMessage) {
+        this.errorMessage.textContent = error.message;
+      }
+      console.error('Add to cart error:', error);
+    } finally {
+      this.submitButton.removeAttribute('disabled');
+      this.submitButton.classList.remove('loading');
+    }
+  }
+}
+
+customElements.define('product-form', ProductForm);</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 4: JSON Template -->
+  <div class="challenge" id="ch4">
+    <div class="challenge-header">
+      <h4>Challenge 4: JSON Template for Product Page</h4>
+      <div class="challenge-meta">
+        <span class="difficulty easy">Easy</span>
+        <span class="badge green">JSON Template</span>
+        <span class="challenge-timer" id="timer4">05:00</span>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p><strong>Interviewer:</strong> "Write a JSON template for a product page (<code>templates/product.json</code>). It should include a main product section with title, price, variant picker, and buy buttons blocks, followed by a product recommendations section."</p>
+      <div class="requirements">
+        <h5>Requirements</h5>
+        <ul>
+          <li>Valid JSON structure with <code>sections</code> and <code>order</code></li>
+          <li>Main product section with multiple blocks and <code>block_order</code></li>
+          <li>Product recommendations section</li>
+          <li>Use the <code>theme</code> layout</li>
+        </ul>
+      </div>
+      <div class="code-editor">
+        <div class="editor-label">
+          <span>templates/product.json</span>
+          <button class="btn btn-ghost" onclick="startTimer('timer4', 300)" style="padding:4px 10px;font-size:.75rem">Start Timer</button>
+        </div>
+        <textarea id="code4" placeholder="Write your JSON template here..."></textarea>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-green" onclick="checkChallenge(4)">Check My Code</button>
+        <button class="btn btn-yellow" onclick="showHint(4)">Hint</button>
+        <button class="btn btn-purple" onclick="showSolution(4)">Show Solution</button>
+        <button class="btn btn-ghost" onclick="resetChallenge(4)">Reset</button>
+      </div>
+      <div class="hint-box" id="hint4">
+        <strong>Hints:</strong> (1) Top-level keys: <code>"layout"</code>, <code>"sections"</code>, <code>"order"</code>. (2) Each section needs a <code>"type"</code> matching a file in <code>sections/</code>. (3) Blocks go inside a section with <code>"blocks"</code> and <code>"block_order"</code>. (4) <code>"order"</code> is an array of section keys.
+      </div>
+      <div class="feedback-box" id="feedback4"></div>
+      <div class="solution-box" id="solution4">
+        <div class="solution-header">Model Solution</div>
+        <pre><code>{
+  "layout": "theme",
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "settings": {},
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button"
+          }
+        },
+        "quantity": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true
+          }
+        },
+        "description": {
+          "type": "description",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "title",
+        "price",
+        "variant_picker",
+        "quantity",
+        "buy_buttons",
+        "description"
+      ]
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like"
+      }
+    }
+  },
+  "order": ["main", "recommendations"]
+}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 5: Collection with Filters -->
+  <div class="challenge" id="ch5">
+    <div class="challenge-header">
+      <h4>Challenge 5: Collection Page with Pagination & Filters</h4>
+      <div class="challenge-meta">
+        <span class="difficulty medium">Medium</span>
+        <span class="badge blue">Liquid</span>
+        <span class="challenge-timer" id="timer5">08:00</span>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p><strong>Interviewer:</strong> "Write the Liquid for a collection page section that displays products in a grid with pagination (12 per page) and storefront filtering support. Include a product count, active filter tags, and use responsive images."</p>
+      <div class="requirements">
+        <h5>Requirements</h5>
+        <ul>
+          <li>Wrap in <code>{% paginate collection.products by 12 %}</code></li>
+          <li>Display active filters with remove links</li>
+          <li>Loop through <code>collection.filters</code> for filter UI</li>
+          <li>Product grid using <code>{% render 'product-card' %}</code></li>
+          <li>Include pagination with <code>{{ paginate | default_pagination }}</code></li>
+          <li>Handle empty collections gracefully</li>
+        </ul>
+      </div>
+      <div class="code-editor">
+        <div class="editor-label">
+          <span>sections/main-collection.liquid</span>
+          <button class="btn btn-ghost" onclick="startTimer('timer5', 480)" style="padding:4px 10px;font-size:.75rem">Start Timer</button>
+        </div>
+        <textarea id="code5" placeholder="Write your collection section Liquid here..."></textarea>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-green" onclick="checkChallenge(5)">Check My Code</button>
+        <button class="btn btn-yellow" onclick="showHint(5)">Hint</button>
+        <button class="btn btn-purple" onclick="showSolution(5)">Show Solution</button>
+        <button class="btn btn-ghost" onclick="resetChallenge(5)">Reset</button>
+      </div>
+      <div class="hint-box" id="hint5">
+        <strong>Hints:</strong> (1) <code>{% paginate collection.products by 12 %}</code> wraps everything. (2) <code>collection.filters</code> gives you filter groups, each with <code>filter.values</code>. (3) Active filters: <code>filter.active_values</code>. (4) Render products with <code>{% render 'product-card', product: product %}</code>. (5) Handle empty with <code>{% if collection.products_count == 0 %}</code>.
+      </div>
+      <div class="feedback-box" id="feedback5"></div>
+      <div class="solution-box" id="solution5">
+        <div class="solution-header">Model Solution</div>
+        <pre><code>{% paginate collection.products by 12 %}
+&lt;div class="collection section-{{ section.id }}"&gt;
+  &lt;h1&gt;{{ collection.title }}&lt;/h1&gt;
+  &lt;p class="collection__count"&gt;{{ collection.products_count }} products&lt;/p&gt;
+
+  &lt;!-- Active Filters --&gt;
+  {% assign active_filters = false %}
+  {% for filter in collection.filters %}
+    {% if filter.active_values.size > 0 %}
+      {% assign active_filters = true %}
+    {% endif %}
+  {% endfor %}
+
+  {% if active_filters %}
+    &lt;div class="active-filters"&gt;
+      {% for filter in collection.filters %}
+        {% for value in filter.active_values %}
+          &lt;a href="{{ value.url_to_remove }}" class="active-filter__tag"&gt;
+            {{ value.label }} &amp;times;
+          &lt;/a&gt;
+        {% endfor %}
+      {% endfor %}
+    &lt;/div&gt;
+  {% endif %}
+
+  &lt;!-- Filters --&gt;
+  &lt;form class="collection__filters"&gt;
+    {% for filter in collection.filters %}
+      &lt;details&gt;
+        &lt;summary&gt;{{ filter.label }}&lt;/summary&gt;
+        {% case filter.type %}
+          {% when 'list' %}
+            {% for value in filter.values %}
+              &lt;label&gt;
+                &lt;input type="checkbox"
+                  name="{{ value.param_name }}"
+                  value="{{ value.value }}"
+                  {% if value.active %}checked{% endif %}
+                  {% if value.count == 0 %}disabled{% endif %}
+                &gt;
+                {{ value.label }} ({{ value.count }})
+              &lt;/label&gt;
+            {% endfor %}
+          {% when 'price_range' %}
+            &lt;input type="number" name="{{ filter.min_value.param_name }}"
+              placeholder="From" value="{{ filter.min_value.value }}"&gt;
+            &lt;input type="number" name="{{ filter.max_value.param_name }}"
+              placeholder="To" value="{{ filter.max_value.value }}"&gt;
+        {% endcase %}
+      &lt;/details&gt;
+    {% endfor %}
+  &lt;/form&gt;
+
+  &lt;!-- Product Grid --&gt;
+  {% if collection.products.size > 0 %}
+    &lt;div class="collection__grid"&gt;
+      {% for product in collection.products %}
+        {% render 'product-card', product: product %}
+      {% endfor %}
+    &lt;/div&gt;
+  {% else %}
+    &lt;p&gt;{{ 'collections.general.no_matches' | t }}&lt;/p&gt;
+  {% endif %}
+
+  &lt;!-- Pagination --&gt;
+  {% if paginate.pages > 1 %}
+    &lt;nav aria-label="Pagination"&gt;
+      {{ paginate | default_pagination }}
+    &lt;/nav&gt;
+  {% endif %}
+&lt;/div&gt;
+{% endpaginate %}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 6: Variant Selector -->
+  <div class="challenge" id="ch6">
+    <div class="challenge-header">
+      <h4>Challenge 6: Variant Selector with Section Rendering API</h4>
+      <div class="challenge-meta">
+        <span class="difficulty hard">Hard</span>
+        <span class="badge red">JS + Liquid</span>
+        <span class="challenge-timer" id="timer6">12:00</span>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p><strong>Interviewer:</strong> "Write the JavaScript for a variant selector Web Component. When a customer selects a different variant, it should update the URL, fetch the new section HTML via the Section Rendering API, and swap the product info without a full page reload."</p>
+      <div class="requirements">
+        <h5>Requirements</h5>
+        <ul>
+          <li>Web Component extending <code>HTMLElement</code></li>
+          <li>Listen to variant option changes</li>
+          <li>Find matching variant from product JSON data</li>
+          <li>Update URL with <code>history.replaceState</code></li>
+          <li>Fetch section HTML via <code>?variant=ID&sections=main-product</code></li>
+          <li>Parse response and swap DOM content</li>
+          <li>Update the hidden form input with new variant ID</li>
+          <li>Handle unavailable variants</li>
+        </ul>
+      </div>
+      <div class="code-editor">
+        <div class="editor-label">
+          <span>assets/variant-selector.js</span>
+          <button class="btn btn-ghost" onclick="startTimer('timer6', 720)" style="padding:4px 10px;font-size:.75rem">Start Timer</button>
+        </div>
+        <textarea id="code6" placeholder="Write your variant selector Web Component here..." style="min-height:300px"></textarea>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-green" onclick="checkChallenge(6)">Check My Code</button>
+        <button class="btn btn-yellow" onclick="showHint(6)">Hint</button>
+        <button class="btn btn-purple" onclick="showSolution(6)">Show Solution</button>
+        <button class="btn btn-ghost" onclick="resetChallenge(6)">Reset</button>
+      </div>
+      <div class="hint-box" id="hint6">
+        <strong>Hints:</strong> (1) Store variant data: <code>JSON.parse(this.querySelector('[type="application/json"]').textContent)</code>. (2) On option change, combine selected options and <code>.find()</code> matching variant. (3) <code>fetch(`${url}?variant=${id}&sections=main-product`)</code>. (4) Parse with <code>new DOMParser().parseFromString(html, 'text/html')</code>. (5) <code>history.replaceState({}, '', newUrl)</code>.
+      </div>
+      <div class="feedback-box" id="feedback6"></div>
+      <div class="solution-box" id="solution6">
+        <div class="solution-header">Model Solution</div>
+        <pre><code>class VariantSelector extends HTMLElement {
+  constructor() {
+    super();
+    this.variants = JSON.parse(
+      this.querySelector('[type="application/json"]').textContent
+    );
+    this.productForm = document.querySelector('product-form');
+    this.sectionId = this.dataset.section;
+  }
+
+  connectedCallback() {
+    this.addEventListener('change', this.onVariantChange.bind(this));
+  }
+
+  onVariantChange() {
+    const selectedOptions = Array.from(
+      this.querySelectorAll('select, fieldset input:checked'),
+      (el) => el.value
+    );
+
+    // Find matching variant
+    const variant = this.variants.find(v =>
+      v.options.every((opt, i) => opt === selectedOptions[i])
+    );
+
+    if (!variant) {
+      this.setUnavailable();
+      return;
+    }
+
+    // Update hidden form input
+    const input = this.productForm?.querySelector('input[name="id"]');
+    if (input) input.value = variant.id;
+
+    // Update URL
+    const url = new URL(window.location);
+    url.searchParams.set('variant', variant.id);
+    window.history.replaceState({}, '', url);
+
+    // Fetch updated section HTML
+    this.fetchSectionHTML(variant.id);
+  }
+
+  async fetchSectionHTML(variantId) {
+    try {
+      const url = `${window.location.pathname}?variant=${variantId}&sections=${this.sectionId}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      const html = new DOMParser().parseFromString(
+        data[this.sectionId], 'text/html'
+      );
+
+      // Swap price
+      const priceSource = html.querySelector('.price');
+      const priceTarget = document.querySelector('.price');
+      if (priceSource && priceTarget) {
+        priceTarget.innerHTML = priceSource.innerHTML;
+      }
+
+      // Swap buy button state
+      const btnSource = html.querySelector('.product-form__submit');
+      const btnTarget = document.querySelector('.product-form__submit');
+      if (btnSource && btnTarget) {
+        btnTarget.disabled = btnSource.disabled;
+        btnTarget.textContent = btnSource.textContent;
+      }
+
+      // Dispatch event
+      document.dispatchEvent(
+        new CustomEvent('variant:changed', {
+          detail: { variantId },
+          bubbles: true
+        })
+      );
+    } catch (error) {
+      console.error('Error fetching variant:', error);
+    }
+  }
+
+  setUnavailable() {
+    const btn = document.querySelector('.product-form__submit');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Unavailable';
+    }
+  }
+}
+
+customElements.define('variant-selector', VariantSelector);</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 7: Accessible Modal -->
+  <div class="challenge" id="ch7">
+    <div class="challenge-header">
+      <h4>Challenge 7: Accessible Cart Drawer</h4>
+      <div class="challenge-meta">
+        <span class="difficulty hard">Hard</span>
+        <span class="badge red">A11y + JS</span>
+        <span class="challenge-timer" id="timer7">10:00</span>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p><strong>Interviewer:</strong> "Write the HTML structure and JavaScript for an accessible cart drawer. It must meet WCAG 2.0 AA requirements. Focus on the accessibility aspects - proper ARIA attributes, keyboard navigation, focus management."</p>
+      <div class="requirements">
+        <h5>Requirements</h5>
+        <ul>
+          <li>Use <code>role="dialog"</code> and <code>aria-modal="true"</code></li>
+          <li><code>aria-label</code> or <code>aria-labelledby</code> on the drawer</li>
+          <li>Focus trap - Tab/Shift+Tab cycles within the drawer</li>
+          <li>Escape key closes the drawer</li>
+          <li>Focus moves to first focusable element on open</li>
+          <li>Focus returns to trigger element on close</li>
+          <li><code>aria-live</code> region for cart count updates</li>
+          <li>Close button with <code>aria-label</code></li>
+        </ul>
+      </div>
+      <div class="code-editor">
+        <div class="editor-label">
+          <span>HTML + JavaScript for cart drawer</span>
+          <button class="btn btn-ghost" onclick="startTimer('timer7', 600)" style="padding:4px 10px;font-size:.75rem">Start Timer</button>
+        </div>
+        <textarea id="code7" placeholder="Write your accessible cart drawer HTML and JS here..." style="min-height:300px"></textarea>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-green" onclick="checkChallenge(7)">Check My Code</button>
+        <button class="btn btn-yellow" onclick="showHint(7)">Hint</button>
+        <button class="btn btn-purple" onclick="showSolution(7)">Show Solution</button>
+        <button class="btn btn-ghost" onclick="resetChallenge(7)">Reset</button>
+      </div>
+      <div class="hint-box" id="hint7">
+        <strong>Hints:</strong> (1) <code>role="dialog" aria-modal="true" aria-label="Shopping cart"</code>. (2) Query all focusable elements: <code>querySelectorAll('a,button,input,select,textarea,[tabindex]')</code>. (3) On keydown, if Tab and last element is focused, move to first. (4) On Escape, close and <code>triggerElement.focus()</code>. (5) <code>aria-live="polite"</code> on cart count span.
+      </div>
+      <div class="feedback-box" id="feedback7"></div>
+      <div class="solution-box" id="solution7">
+        <div class="solution-header">Model Solution</div>
+        <pre><code>&lt;!-- Cart icon with live region --&gt;
+&lt;button id="cart-toggle" aria-controls="cart-drawer" aria-expanded="false"&gt;
+  Cart (&lt;span aria-live="polite" class="cart-count"&gt;0&lt;/span&gt;)
+&lt;/button&gt;
+
+&lt;!-- Cart Drawer --&gt;
+&lt;div id="cart-drawer"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Shopping cart"
+  hidden
+&gt;
+  &lt;div class="cart-drawer__header"&gt;
+    &lt;h2 id="cart-title"&gt;Your Cart&lt;/h2&gt;
+    &lt;button class="cart-drawer__close" aria-label="Close cart"&gt;
+      &amp;times;
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="cart-drawer__body"&gt;
+    &lt;!-- Cart items render here --&gt;
+  &lt;/div&gt;
+  &lt;div class="cart-drawer__footer"&gt;
+    &lt;a href="/checkout" class="btn"&gt;Checkout&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cart-drawer__overlay" hidden&gt;&lt;/div&gt;
+
+&lt;script&gt;
+class CartDrawer {
+  constructor() {
+    this.drawer = document.getElementById('cart-drawer');
+    this.toggle = document.getElementById('cart-toggle');
+    this.closeBtn = this.drawer.querySelector('.cart-drawer__close');
+    this.overlay = document.querySelector('.cart-drawer__overlay');
+    this.triggerElement = null;
+
+    this.toggle.addEventListener('click', () => this.open());
+    this.closeBtn.addEventListener('click', () => this.close());
+    this.overlay.addEventListener('click', () => this.close());
+    this.drawer.addEventListener('keydown', (e) => this.onKeydown(e));
+
+    document.addEventListener('cart:item-added', () => this.open());
+  }
+
+  open() {
+    this.triggerElement = document.activeElement;
+    this.drawer.hidden = false;
+    this.overlay.hidden = false;
+    this.toggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+
+    // Focus first focusable element
+    const focusable = this.getFocusableElements();
+    if (focusable.length) focusable[0].focus();
+  }
+
+  close() {
+    this.drawer.hidden = true;
+    this.overlay.hidden = true;
+    this.toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+
+    // Return focus to trigger
+    if (this.triggerElement) this.triggerElement.focus();
+  }
+
+  onKeydown(event) {
+    if (event.key === 'Escape') {
+      this.close();
+      return;
+    }
+
+    if (event.key !== 'Tab') return;
+
+    // Focus trap
+    const focusable = this.getFocusableElements();
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  getFocusableElements() {
+    return [...this.drawer.querySelectorAll(
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )];
+  }
+}
+
+new CartDrawer();
+&lt;/script&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 8: Layout File -->
+  <div class="challenge" id="ch8">
+    <div class="challenge-header">
+      <h4>Challenge 8: Write theme.liquid from Scratch</h4>
+      <div class="challenge-meta">
+        <span class="difficulty medium">Medium</span>
+        <span class="badge purple">Layout</span>
+        <span class="challenge-timer" id="timer8">07:00</span>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p><strong>Interviewer:</strong> "Write the <code>layout/theme.liquid</code> file from scratch. Include everything a production theme needs: proper meta tags, SEO, accessibility, section groups, and asset loading with performance in mind."</p>
+      <div class="requirements">
+        <h5>Requirements</h5>
+        <ul>
+          <li><code>{{ content_for_header }}</code> in <code>&lt;head&gt;</code> and <code>{{ content_for_layout }}</code> in <code>&lt;body&gt;</code></li>
+          <li>Proper <code>lang</code> attribute using <code>request.locale</code></li>
+          <li>SEO: <code>page_title</code>, meta description, canonical URL</li>
+          <li>Skip link for accessibility</li>
+          <li>Section groups for header and footer</li>
+          <li>CSS loaded with performance in mind</li>
+          <li>Main content area with <code>role="main"</code> and <code>tabindex="-1"</code></li>
+        </ul>
+      </div>
+      <div class="code-editor">
+        <div class="editor-label">
+          <span>layout/theme.liquid</span>
+          <button class="btn btn-ghost" onclick="startTimer('timer8', 420)" style="padding:4px 10px;font-size:.75rem">Start Timer</button>
+        </div>
+        <textarea id="code8" placeholder="Write your layout file here..."></textarea>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-green" onclick="checkChallenge(8)">Check My Code</button>
+        <button class="btn btn-yellow" onclick="showHint(8)">Hint</button>
+        <button class="btn btn-purple" onclick="showSolution(8)">Show Solution</button>
+        <button class="btn btn-ghost" onclick="resetChallenge(8)">Reset</button>
+      </div>
+      <div class="hint-box" id="hint8">
+        <strong>Hints:</strong> (1) <code>&lt;html lang="{{ request.locale.iso_code }}"&gt;</code>. (2) <code>{{ content_for_header }}</code> is a black box - just include it. (3) <code>{% sections 'header-group' %}</code> instead of <code>{% section 'header' %}</code>. (4) Skip link goes right after <code>&lt;body&gt;</code>. (5) <code>{{ 'base.css' | asset_url | stylesheet_tag }}</code>.
+      </div>
+      <div class="feedback-box" id="feedback8"></div>
+      <div class="solution-box" id="solution8">
+        <div class="solution-header">Model Solution</div>
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="{{ request.locale.iso_code }}"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+
+  &lt;title&gt;{{ page_title }}{% unless page_title contains shop.name %} - {{ shop.name }}{% endunless %}&lt;/title&gt;
+
+  {% if page_description %}
+    &lt;meta name="description" content="{{ page_description | escape }}"&gt;
+  {% endif %}
+
+  &lt;link rel="canonical" href="{{ canonical_url }}"&gt;
+
+  {{ content_for_header }}
+
+  {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
+  {{ 'component-cart.css' | asset_url | stylesheet_tag }}
+
+  &lt;script&gt;
+    document.documentElement.className =
+      document.documentElement.className.replace('no-js', 'js');
+  &lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body class="template-{{ template.name }}"&gt;
+  &lt;a href="#MainContent" class="skip-to-content"&gt;
+    {{ 'accessibility.skip_to_content' | t }}
+  &lt;/a&gt;
+
+  {% sections 'header-group' %}
+
+  &lt;main id="MainContent" role="main" tabindex="-1"&gt;
+    {{ content_for_layout }}
+  &lt;/main&gt;
+
+  {% sections 'footer-group' %}
+
+  &lt;script src="{{ 'global.js' | asset_url }}" defer&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERALL SCORE -->
+  <div class="overall-score" id="overallScore" style="display:none">
+    <h3 style="color:var(--accent2)">Interview Readiness Estimate</h3>
+    <div class="big-score" id="bigScore"></div>
+    <div class="verdict" id="verdict"></div>
+    <div class="breakdown" id="breakdown"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:20px">
+    <button class="btn btn-green" onclick="calculateOverallScore()" style="padding:12px 32px;font-size:1rem">Calculate My Interview Score</button>
+  </div>
+</section>
+
 <!-- ===== FINAL TIPS ===== -->
 <section id="final-tips">
-  <h2><span class="num">18</span> Final Tips for Your Interview</h2>
+  <h2><span class="num">19</span> Final Tips for Your Interview</h2>
 
   <div class="card-grid">
     <div class="card" style="border-left:4px solid var(--green)">
@@ -2056,6 +3064,317 @@ const observer = new IntersectionObserver(entries => {
 }, { rootMargin: '-20% 0px -80% 0px' });
 sections.forEach(s => observer.observe(s));
 
+
+// === Live Coding Challenges ===
+const challengeChecks = {
+  1: {
+    name: 'Product Card Snippet',
+    patterns: [
+      { regex: /product\.featured_image|product\.images/, label: 'References product image', weight: 1 },
+      { regex: /image_url/, label: 'Uses image_url filter', weight: 2 },
+      { regex: /image_tag/, label: 'Uses image_tag filter', weight: 1 },
+      { regex: /loading.*lazy|lazy.*loading/, label: 'Lazy loading on images', weight: 1 },
+      { regex: /product\.url/, label: 'Links to product URL', weight: 1 },
+      { regex: /product\.title/, label: 'Displays product title', weight: 1 },
+      { regex: /product\.price.*money|money.*product\.price|\|\s*money/, label: 'Formats price with money filter', weight: 2 },
+      { regex: /compare_at_price/, label: 'Handles compare-at price (sale)', weight: 2 },
+      { regex: /if.*product\.(featured_image|images)|unless.*product/, label: 'Handles missing image', weight: 1 },
+      { regex: /<s>|strikethrough|line-through|<del>/, label: 'Strikethrough on original price', weight: 1 },
+    ],
+    total: 13
+  },
+  2: {
+    name: 'Hero Banner Section',
+    patterns: [
+      { regex: /\{%\s*schema\s*%\}|schema/, label: 'Includes {% schema %} tag', weight: 2 },
+      { regex: /"name"/, label: 'Schema has name property', weight: 1 },
+      { regex: /"settings"/, label: 'Schema has settings array', weight: 1 },
+      { regex: /"blocks"/, label: 'Schema has blocks definition', weight: 2 },
+      { regex: /"presets?"/, label: 'Includes presets', weight: 2 },
+      { regex: /enabled_on|disabled_on/, label: 'Template restriction', weight: 1 },
+      { regex: /"index"/, label: 'Restricted to index template', weight: 1 },
+      { regex: /image_picker/, label: 'Uses image_picker setting type', weight: 1 },
+      { regex: /range/, label: 'Uses range for opacity', weight: 1 },
+      { regex: /section\.blocks|for block in/, label: 'Iterates over blocks', weight: 2 },
+      { regex: /block\.shopify_attributes|shopify_attributes/, label: 'Includes block.shopify_attributes', weight: 2 },
+      { regex: /\{%\s*style\s*%\}|section\.id/, label: 'Section-scoped CSS', weight: 1 },
+      { regex: /url/, label: 'URL setting type for button link', weight: 1 },
+    ],
+    total: 18
+  },
+  3: {
+    name: 'Ajax Add to Cart',
+    patterns: [
+      { regex: /class\s+\w+\s+extends\s+HTMLElement/, label: 'Extends HTMLElement', weight: 2 },
+      { regex: /connectedCallback/, label: 'Uses connectedCallback', weight: 1 },
+      { regex: /constructor/, label: 'Has constructor', weight: 1 },
+      { regex: /addEventListener.*submit|onsubmit/, label: 'Listens to form submit', weight: 1 },
+      { regex: /preventDefault/, label: 'Prevents default form submit', weight: 1 },
+      { regex: /cart\/add\.js/, label: 'POSTs to /cart/add.js', weight: 2 },
+      { regex: /fetch\(/, label: 'Uses fetch API', weight: 1 },
+      { regex: /POST/, label: 'Uses POST method', weight: 1 },
+      { regex: /FormData|formData|JSON\.stringify/, label: 'Sends form data', weight: 1 },
+      { regex: /sections/, label: 'Uses Section Rendering API', weight: 2 },
+      { regex: /disabled|loading/, label: 'Handles loading state', weight: 1 },
+      { regex: /catch|error/i, label: 'Handles errors', weight: 1 },
+      { regex: /CustomEvent|dispatchEvent/, label: 'Dispatches custom event', weight: 2 },
+      { regex: /customElements\.define/, label: 'Registers custom element', weight: 2 },
+      { regex: /finally/, label: 'Resets state in finally block', weight: 1 },
+    ],
+    total: 20
+  },
+  4: {
+    name: 'JSON Template',
+    patterns: [
+      { regex: /"layout"/, label: 'Has layout property', weight: 1 },
+      { regex: /"sections"/, label: 'Has sections object', weight: 2 },
+      { regex: /"order"/, label: 'Has order array', weight: 2 },
+      { regex: /"type"/, label: 'Sections have type property', weight: 1 },
+      { regex: /"blocks"/, label: 'Main section has blocks', weight: 2 },
+      { regex: /"block_order"/, label: 'Has block_order array', weight: 2 },
+      { regex: /main.product|product/, label: 'Has main product section', weight: 1 },
+      { regex: /recommendation|related/, label: 'Has recommendations section', weight: 1 },
+      { regex: /title/, label: 'Has title block', weight: 1 },
+      { regex: /price/, label: 'Has price block', weight: 1 },
+      { regex: /buy.button|variant|cart/, label: 'Has buy/variant block', weight: 1 },
+    ],
+    total: 15
+  },
+  5: {
+    name: 'Collection with Filters',
+    patterns: [
+      { regex: /paginate.*collection\.products|paginate/, label: 'Uses paginate tag', weight: 2 },
+      { regex: /by\s+12/, label: 'Paginates by 12', weight: 1 },
+      { regex: /endpaginate/, label: 'Closes paginate tag', weight: 1 },
+      { regex: /collection\.filters|for filter in/, label: 'Iterates collection filters', weight: 2 },
+      { regex: /active_values|active_filter/, label: 'Handles active filters', weight: 2 },
+      { regex: /url_to_remove/, label: 'Filter remove links', weight: 1 },
+      { regex: /render.*product.card|product.card/, label: 'Renders product card snippet', weight: 2 },
+      { regex: /default_pagination|paginate/, label: 'Includes pagination', weight: 1 },
+      { regex: /collection\.products\.size.*0|products_count.*0|no.*match/i, label: 'Handles empty collection', weight: 1 },
+      { regex: /for product in collection\.products/, label: 'Loops through products', weight: 1 },
+      { regex: /collection\.title/, label: 'Displays collection title', weight: 1 },
+    ],
+    total: 15
+  },
+  6: {
+    name: 'Variant Selector',
+    patterns: [
+      { regex: /class\s+\w+\s+extends\s+HTMLElement/, label: 'Extends HTMLElement', weight: 1 },
+      { regex: /connectedCallback/, label: 'Uses connectedCallback', weight: 1 },
+      { regex: /JSON\.parse/, label: 'Parses variant JSON data', weight: 2 },
+      { regex: /addEventListener.*change|onchange/, label: 'Listens to change events', weight: 1 },
+      { regex: /\.find\(|variants.*find/, label: 'Finds matching variant', weight: 2 },
+      { regex: /history\.replaceState|pushState/, label: 'Updates URL', weight: 2 },
+      { regex: /searchParams.*variant|variant.*searchParams/, label: 'Sets variant URL param', weight: 1 },
+      { regex: /fetch\(/, label: 'Fetches section HTML', weight: 1 },
+      { regex: /sections/, label: 'Uses Section Rendering API', weight: 2 },
+      { regex: /DOMParser|parseFromString|innerHTML/, label: 'Parses and swaps HTML', weight: 2 },
+      { regex: /input.*name.*id|name="id"/, label: 'Updates hidden variant input', weight: 1 },
+      { regex: /unavailable|disabled|sold.out/i, label: 'Handles unavailable variants', weight: 1 },
+      { regex: /customElements\.define/, label: 'Registers custom element', weight: 1 },
+      { regex: /CustomEvent|dispatchEvent/, label: 'Dispatches variant change event', weight: 1 },
+    ],
+    total: 19
+  },
+  7: {
+    name: 'Accessible Cart Drawer',
+    patterns: [
+      { regex: /role=.*dialog|role="dialog"/, label: 'Uses role="dialog"', weight: 2 },
+      { regex: /aria-modal/, label: 'Has aria-modal="true"', weight: 2 },
+      { regex: /aria-label|aria-labelledby/, label: 'Has aria-label or aria-labelledby', weight: 2 },
+      { regex: /aria-expanded/, label: 'Toggle has aria-expanded', weight: 1 },
+      { regex: /aria-live/, label: 'aria-live region for cart count', weight: 2 },
+      { regex: /Escape|escape|Esc/, label: 'Escape key closes drawer', weight: 2 },
+      { regex: /focus\(\)/, label: 'Manages focus', weight: 2 },
+      { regex: /focusable|querySelectorAll.*button|querySelectorAll.*a\b/, label: 'Queries focusable elements', weight: 1 },
+      { regex: /Tab|tab|shiftKey/, label: 'Focus trap with Tab key', weight: 2 },
+      { regex: /hidden|display.*none|visibility/, label: 'Hides drawer when closed', weight: 1 },
+      { regex: /aria-label.*[Cc]lose|close.*aria-label/, label: 'Close button has aria-label', weight: 1 },
+      { regex: /trigger|activeElement/, label: 'Returns focus to trigger on close', weight: 2 },
+      { regex: /overflow.*hidden/, label: 'Prevents body scroll when open', weight: 1 },
+    ],
+    total: 21
+  },
+  8: {
+    name: 'theme.liquid Layout',
+    patterns: [
+      { regex: /content_for_header/, label: 'Includes content_for_header', weight: 3 },
+      { regex: /content_for_layout/, label: 'Includes content_for_layout', weight: 3 },
+      { regex: /request\.locale\.iso_code|request\.locale/, label: 'Lang attribute from request.locale', weight: 1 },
+      { regex: /page_title/, label: 'Uses page_title for <title>', weight: 1 },
+      { regex: /page_description/, label: 'Meta description', weight: 1 },
+      { regex: /canonical_url/, label: 'Canonical URL', weight: 1 },
+      { regex: /sections\s+['"]header|header.group/, label: 'Header section group', weight: 2 },
+      { regex: /sections\s+['"]footer|footer.group/, label: 'Footer section group', weight: 2 },
+      { regex: /skip.*content|skip.to|skip.link|skip-link/i, label: 'Skip link for accessibility', weight: 2 },
+      { regex: /role=.*main|role="main"/, label: 'Main content role', weight: 1 },
+      { regex: /tabindex=.*-1|tabindex="-1"/, label: 'Tabindex on main for skip link', weight: 1 },
+      { regex: /asset_url/, label: 'Uses asset_url for assets', weight: 1 },
+      { regex: /defer|async/, label: 'Deferred script loading', weight: 1 },
+      { regex: /viewport/, label: 'Viewport meta tag', weight: 1 },
+      { regex: /charset.*utf|utf.*charset/, label: 'UTF-8 charset', weight: 1 },
+    ],
+    total: 22
+  }
+};
+
+const challengeScores = {};
+
+function checkChallenge(id) {
+  const code = document.getElementById(`code${id}`).value;
+  const checks = challengeChecks[id];
+  const fb = document.getElementById(`feedback${id}`);
+
+  if (!code.trim()) {
+    fb.className = 'feedback-box fail';
+    fb.style.display = 'block';
+    fb.innerHTML = '<h5>No code entered</h5><p style="font-size:.85rem;color:var(--text2)">Write your solution first, then check.</p>';
+    challengeScores[id] = 0;
+    return;
+  }
+
+  let earned = 0;
+  const passed = [];
+  const missed = [];
+
+  checks.patterns.forEach(p => {
+    if (p.regex.test(code)) {
+      earned += p.weight;
+      passed.push(p.label);
+    } else {
+      missed.push(p.label);
+    }
+  });
+
+  const pct = Math.round((earned / checks.total) * 100);
+  challengeScores[id] = pct;
+
+  let cls, grade;
+  if (pct >= 75) { cls = 'pass'; grade = 'Strong'; }
+  else if (pct >= 45) { cls = 'partial'; grade = 'Partial'; }
+  else { cls = 'fail'; grade = 'Needs Work'; }
+
+  fb.className = `feedback-box ${cls}`;
+  fb.style.display = 'block';
+
+  let html = `<h5>${grade} - ${pct}% (${earned}/${checks.total} points)</h5>`;
+  if (passed.length) {
+    html += '<ul>' + passed.map(p => `<li style="color:var(--green)">&#10003; ${p}</li>`).join('') + '</ul>';
+  }
+  if (missed.length) {
+    html += '<ul>' + missed.map(m => `<li style="color:var(--red)">&#10007; Missing: ${m}</li>`).join('') + '</ul>';
+  }
+  fb.innerHTML = html;
+}
+
+function showHint(id) {
+  const el = document.getElementById(`hint${id}`);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function showSolution(id) {
+  const el = document.getElementById(`solution${id}`);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function resetChallenge(id) {
+  document.getElementById(`code${id}`).value = '';
+  document.getElementById(`feedback${id}`).style.display = 'none';
+  document.getElementById(`hint${id}`).style.display = 'none';
+  document.getElementById(`solution${id}`).style.display = 'none';
+  delete challengeScores[id];
+}
+
+// Timers
+const timers = {};
+function startTimer(timerId, seconds) {
+  if (timers[timerId]) clearInterval(timers[timerId]);
+  let remaining = seconds;
+  const el = document.getElementById(timerId);
+  el.style.color = 'var(--yellow)';
+  timers[timerId] = setInterval(() => {
+    remaining--;
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (remaining <= 60) el.style.color = 'var(--red)';
+    if (remaining <= 0) {
+      clearInterval(timers[timerId]);
+      el.textContent = "TIME'S UP";
+      el.style.color = 'var(--red)';
+    }
+  }, 1000);
+}
+
+// Tab key in textareas
+document.querySelectorAll('.code-editor textarea').forEach(ta => {
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = ta.selectionStart;
+      ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(ta.selectionEnd);
+      ta.selectionStart = ta.selectionEnd = start + 2;
+    }
+  });
+});
+
+function calculateOverallScore() {
+  const ids = [1,2,3,4,5,6,7,8];
+  let attempted = 0, totalPct = 0;
+
+  // Auto-check any unevaluated challenges that have code
+  ids.forEach(id => {
+    const code = document.getElementById(`code${id}`).value;
+    if (code.trim() && challengeScores[id] === undefined) {
+      checkChallenge(id);
+    }
+    if (challengeScores[id] !== undefined) {
+      attempted++;
+      totalPct += challengeScores[id];
+    }
+  });
+
+  const panel = document.getElementById('overallScore');
+  panel.style.display = 'block';
+
+  if (attempted === 0) {
+    document.getElementById('bigScore').textContent = '--';
+    document.getElementById('bigScore').className = 'big-score yellow';
+    document.getElementById('verdict').textContent = 'Solve at least one challenge to get your score.';
+    document.getElementById('breakdown').innerHTML = '';
+    panel.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  const avg = Math.round(totalPct / attempted);
+  const overall = Math.round(totalPct / ids.length); // penalize unanswered
+
+  const scoreEl = document.getElementById('bigScore');
+  scoreEl.textContent = overall + '%';
+
+  if (overall >= 70) {
+    scoreEl.className = 'big-score green';
+    document.getElementById('verdict').textContent = 'Strong - You are well-prepared for a senior Shopify theme developer interview!';
+  } else if (overall >= 45) {
+    scoreEl.className = 'big-score yellow';
+    document.getElementById('verdict').textContent = 'Getting there - Review the solutions for missed items and practice the harder challenges again.';
+  } else {
+    scoreEl.className = 'big-score red';
+    document.getElementById('verdict').textContent = 'More practice needed - Study the solutions carefully and try each challenge again.';
+  }
+
+  let breakdownHTML = `
+    <div><span class="num" style="color:var(--accent)">${attempted}</span><span class="lbl">Attempted</span></div>
+    <div><span class="num" style="color:var(--green)">${ids.filter(id => (challengeScores[id]||0) >= 75).length}</span><span class="lbl">Strong</span></div>
+    <div><span class="num" style="color:var(--yellow)">${ids.filter(id => (challengeScores[id]||0) >= 45 && (challengeScores[id]||0) < 75).length}</span><span class="lbl">Partial</span></div>
+    <div><span class="num" style="color:var(--red)">${ids.filter(id => challengeScores[id] !== undefined && challengeScores[id] < 45).length}</span><span class="lbl">Needs Work</span></div>
+    <div><span class="num" style="color:var(--text3)">${ids.length - attempted}</span><span class="lbl">Skipped</span></div>
+    <div><span class="num" style="color:var(--accent2)">${avg}%</span><span class="lbl">Avg (attempted)</span></div>
+  `;
+  document.getElementById('breakdown').innerHTML = breakdownHTML;
+  panel.scrollIntoView({ behavior: 'smooth' });
+}
 
 // === Animate on scroll ===
 const animBoxes = document.querySelectorAll('.anim-box');
