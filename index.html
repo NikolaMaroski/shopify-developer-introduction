@@ -2025,7 +2025,10 @@ customElements.define('predictive-search', PredictiveSearch);</code></pre>
       <div class="quiz-result" id="q10-result"></div>
     </div>
 
-    <button class="quiz-btn" onclick="checkQuiz()">Check All Answers</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="quiz-btn" onclick="checkQuiz()">Check All Answers</button>
+      <button class="quiz-btn" onclick="resetQuiz()" style="background:var(--bg4);color:var(--text2)">Reset &amp; Shuffle</button>
+    </div>
     <div id="quizScore" style="margin-top:16px;font-size:1.1rem;font-weight:700"></div>
   </div>
 </section>
@@ -3161,12 +3164,12 @@ function showTab(e, tabId) {
 // === Quiz ===
 function checkQuiz() {
   let score = 0;
-  const total = 10;
-  for (let i = 1; i <= total; i++) {
-    const q = document.querySelector(`.quiz-q:nth-child(${i})`);
-    if (!q) continue;
+  const questions = document.querySelectorAll('.quiz-q');
+  const total = questions.length;
+  questions.forEach((q, idx) => {
+    const i = idx + 1;
     const answer = q.dataset.answer;
-    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    const selected = q.querySelector(`input[name="q${i}"]:checked`);
     const resultEl = document.getElementById(`q${i}-result`);
     if (selected && selected.value === answer) {
       resultEl.className = 'quiz-result correct';
@@ -3176,10 +3179,50 @@ function checkQuiz() {
       resultEl.className = 'quiz-result wrong';
       resultEl.textContent = `Incorrect. Correct answer: ${answer.toUpperCase()}`;
     }
-  }
+  });
   const scoreEl = document.getElementById('quizScore');
   scoreEl.textContent = `Score: ${score}/${total} (${Math.round(score/total*100)}%)`;
   scoreEl.style.color = score >= 7 ? 'var(--green)' : score >= 5 ? 'var(--yellow)' : 'var(--red)';
+}
+
+function resetQuiz() {
+  // Clear all selections and results
+  document.querySelectorAll('.quiz-q input[type="radio"]').forEach(r => r.checked = false);
+  document.querySelectorAll('.quiz-result').forEach(r => { r.className = 'quiz-result'; r.textContent = ''; r.style.display = 'none'; });
+  document.getElementById('quizScore').textContent = '';
+
+  // Shuffle options within each question
+  document.querySelectorAll('.quiz-q').forEach(q => {
+    const opts = q.querySelector('.quiz-opts');
+    const labels = [...opts.querySelectorAll('label')];
+    // Fisher-Yates shuffle
+    for (let i = labels.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [labels[i], labels[j]] = [labels[j], labels[i]];
+    }
+    labels.forEach(l => opts.appendChild(l));
+  });
+
+  // Shuffle question order
+  const quiz = document.querySelector('.quiz');
+  const questions = [...quiz.querySelectorAll('.quiz-q')];
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j], questions[i]];
+  }
+  // Re-number and re-insert
+  const btnRow = quiz.querySelector('div[style*="flex"]');
+  questions.forEach((q, idx) => {
+    const num = idx + 1;
+    const p = q.querySelector('p');
+    p.innerHTML = p.innerHTML.replace(/^\d+\./, num + '.');
+    // Update radio names and result IDs
+    q.querySelectorAll('input[type="radio"]').forEach(r => r.name = 'q' + num);
+    q.querySelector('.quiz-result').id = 'q' + num + '-result';
+    quiz.insertBefore(q, btnRow);
+  });
+
+  window.scrollTo({ top: quiz.offsetTop - 80, behavior: 'smooth' });
 }
 
 // === Toggle interview answers ===
