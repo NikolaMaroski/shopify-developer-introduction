@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopify Theme Developer - Interview Crash Course</title>
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--bg4:#16213e;
+  --accent:#95b8d1;--accent2:#b8e0d2;--accent3:#d6eadf;
+  --green:#5eead4;--yellow:#fbbf24;--red:#f87171;--purple:#c084fc;
+  --orange:#fb923c;--pink:#f472b6;--blue:#60a5fa;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --border:#1e293b;
+  --code-bg:#1e1e2e;
+  --radius:12px;
+  --liquid-green:#5fb49c;--liquid-tag:#7c3aed;--liquid-filter:#f59e0b;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+::selection{background:var(--accent);color:var(--bg)}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+
+/* ===== NAV ===== */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 20px;height:60px;display:flex;align-items:center;gap:16px}
+.topnav .logo{font-weight:800;font-size:1.1rem;color:var(--green);white-space:nowrap;display:flex;align-items:center;gap:8px}
+.topnav .logo svg{width:24px;height:24px}
+.nav-links{display:flex;gap:4px;overflow-x:auto;flex:1;padding:4px 0;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{padding:6px 12px;border-radius:8px;font-size:.8rem;color:var(--text2);white-space:nowrap;transition:all .2s}
+.nav-links a:hover,.nav-links a.active{background:var(--bg3);color:var(--green);text-decoration:none}
+.progress-bar{position:fixed;top:60px;left:0;height:3px;background:linear-gradient(90deg,var(--green),var(--accent),var(--purple));z-index:1001;transition:width .3s;width:0}
+
+/* ===== LAYOUT ===== */
+.container{max-width:1200px;margin:80px auto 40px;padding:0 20px}
+section{margin-bottom:60px;animation:fadeUp .6s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== HEADINGS ===== */
+h1{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--green),var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.subtitle{color:var(--text2);font-size:1.1rem;margin-bottom:40px}
+h2{font-size:1.8rem;font-weight:800;color:var(--accent2);margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px}
+h2 .num{background:var(--bg4);color:var(--green);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+h3{font-size:1.2rem;font-weight:700;color:var(--accent3);margin:20px 0 12px}
+h4{font-size:1rem;font-weight:600;color:var(--yellow);margin:16px 0 8px}
+
+/* ===== CARDS ===== */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;transition:border-color .3s}
+.card:hover{border-color:var(--accent)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.mini-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;transition:all .3s}
+.mini-card:hover{border-color:var(--green);transform:translateY(-2px)}
+.mini-card h4{margin:0 0 8px;color:var(--green)}
+.mini-card p,.mini-card code{font-size:.9rem;color:var(--text2)}
+
+/* ===== CODE ===== */
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;margin:12px 0;font-size:.85rem;line-height:1.6}
+code{font-family:'Fira Code','Cascadia Code','JetBrains Mono',monospace;font-size:.85rem}
+:not(pre)>code{background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--yellow)}
+.liquid-obj{color:#5fb49c}.liquid-tag{color:#c084fc}.liquid-filter{color:#fbbf24}
+.liquid-str{color:#f472b6}.liquid-kw{color:#60a5fa}.html-tag{color:#f87171}
+.comment{color:#64748b;font-style:italic}
+
+/* ===== DIAGRAMS ===== */
+.diagram{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:30px;margin:20px 0;overflow-x:auto}
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center}
+.flow-item{background:var(--bg4);border:2px solid var(--accent);border-radius:10px;padding:12px 20px;text-align:center;font-weight:600;font-size:.85rem;min-width:120px;position:relative;animation:popIn .5s ease both}
+.flow-item.green{border-color:var(--green);color:var(--green)}
+.flow-item.purple{border-color:var(--purple);color:var(--purple)}
+.flow-item.yellow{border-color:var(--yellow);color:var(--yellow)}
+.flow-item.orange{border-color:var(--orange);color:var(--orange)}
+.flow-item.pink{border-color:var(--pink);color:var(--pink)}
+.flow-item.blue{border-color:var(--blue);color:var(--blue)}
+.flow-item small{display:block;font-weight:400;font-size:.75rem;color:var(--text2);margin-top:4px}
+.flow-arrow{font-size:1.5rem;color:var(--text3);padding:0 8px;flex-shrink:0}
+@keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+
+.tree{font-family:monospace;font-size:.9rem;line-height:1.8;color:var(--text2)}
+.tree .dir{color:var(--yellow);font-weight:700}
+.tree .file{color:var(--accent)}
+.tree .req{color:var(--green);font-weight:700}
+.tree .desc{color:var(--text3);font-size:.8rem}
+
+/* ===== ANIMATED BOXES ===== */
+.render-pipeline{display:flex;flex-direction:column;gap:12px;margin:20px 0}
+.pipe-step{display:flex;align-items:center;gap:16px;padding:16px;background:var(--bg3);border-radius:10px;border-left:4px solid var(--green);opacity:0;animation:slideRight .5s ease forwards}
+.pipe-step:nth-child(1){animation-delay:.1s;border-left-color:var(--green)}
+.pipe-step:nth-child(2){animation-delay:.3s;border-left-color:var(--accent)}
+.pipe-step:nth-child(3){animation-delay:.5s;border-left-color:var(--purple)}
+.pipe-step:nth-child(4){animation-delay:.7s;border-left-color:var(--yellow)}
+.pipe-step:nth-child(5){animation-delay:.9s;border-left-color:var(--orange)}
+.pipe-step:nth-child(6){animation-delay:1.1s;border-left-color:var(--pink)}
+.pipe-num{width:32px;height:32px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+.pipe-text{flex:1}
+.pipe-text strong{display:block;margin-bottom:2px}
+.pipe-text span{font-size:.85rem;color:var(--text2)}
+@keyframes slideRight{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;font-size:.85rem;transition:all .2s}
+.tab-btn:hover,.tab-btn.active{background:var(--bg4);color:var(--green);border-color:var(--green)}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeUp .3s ease}
+
+/* ===== TABLES ===== */
+.table-wrap{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:var(--bg4);color:var(--green);text-align:left;padding:10px 14px;font-weight:600;white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+tr:hover td{background:var(--bg3)}
+
+/* ===== QUIZ ===== */
+.quiz{background:var(--bg2);border:2px solid var(--purple);border-radius:var(--radius);padding:24px;margin:20px 0}
+.quiz h3{color:var(--purple);margin:0 0 16px}
+.quiz-q{margin-bottom:16px;padding:16px;background:var(--bg3);border-radius:10px}
+.quiz-q p{font-weight:600;margin-bottom:10px}
+.quiz-opts label{display:block;padding:8px 12px;margin:4px 0;border-radius:8px;cursor:pointer;transition:all .2s;font-size:.9rem}
+.quiz-opts label:hover{background:var(--bg4)}
+.quiz-opts input{margin-right:8px}
+.quiz-result{padding:10px;border-radius:8px;margin-top:8px;font-size:.9rem;display:none}
+.quiz-result.correct{background:rgba(94,234,212,.15);color:var(--green);display:block}
+.quiz-result.wrong{background:rgba(248,113,113,.15);color:var(--red);display:block}
+.quiz-btn{padding:10px 24px;border-radius:8px;border:none;background:var(--purple);color:white;font-weight:600;cursor:pointer;margin-top:12px;transition:all .2s}
+.quiz-btn:hover{opacity:.8}
+
+/* ===== TIPS ===== */
+.tip{padding:16px 20px;border-radius:10px;margin:16px 0;font-size:.9rem;display:flex;gap:12px;align-items:flex-start}
+.tip.green{background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.2)}
+.tip.yellow{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2)}
+.tip.red{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2)}
+.tip.purple{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.2)}
+.tip-icon{font-size:1.2rem;flex-shrink:0;line-height:1.4}
+.tip-text strong{display:block;margin-bottom:4px}
+
+/* ===== COMPARE ===== */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.compare-col{background:var(--bg3);border-radius:10px;padding:16px}
+.compare-col h4{text-align:center;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.compare-col.legacy h4{color:var(--red)}
+.compare-col.modern h4{color:var(--green)}
+.compare-col ul{list-style:none;padding:0;margin-top:10px}
+.compare-col li{padding:6px 0;font-size:.85rem;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.03)}
+.compare-col li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:8px}
+.compare-col.legacy li::before{background:var(--red)}
+.compare-col.modern li::before{background:var(--green)}
+
+/* ===== BADGE ===== */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600;margin:2px}
+.badge.green{background:rgba(94,234,212,.15);color:var(--green)}
+.badge.yellow{background:rgba(251,191,36,.15);color:var(--yellow)}
+.badge.red{background:rgba(248,113,113,.15);color:var(--red)}
+.badge.purple{background:rgba(192,132,252,.15);color:var(--purple)}
+.badge.blue{background:rgba(96,165,250,.15);color:var(--blue)}
+
+/* ===== ANIMATION CLASSES ===== */
+.anim-box{opacity:0;transform:translateY(20px);transition:all .6s ease}
+.anim-box.visible{opacity:1;transform:translateY(0)}
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.float{animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ===== SECTION SCHEMA VISUAL ===== */
+.schema-visual{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.schema-block{padding:14px;background:var(--bg3);border-radius:10px;border-top:3px solid var(--accent);text-align:center}
+.schema-block .label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.schema-block .value{font-weight:700;margin-top:4px}
+
+/* ===== CHEAT SHEET ===== */
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.cheat-item{background:var(--bg3);border-radius:10px;padding:14px;border-left:3px solid var(--accent)}
+.cheat-item .cheat-label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.cheat-item code{display:block;color:var(--green);margin-top:4px}
+.cheat-item .cheat-desc{font-size:.8rem;color:var(--text2);margin-top:4px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  h1{font-size:1.8rem}h2{font-size:1.4rem}
+  .compare{grid-template-columns:1fr}
+  .flow{flex-direction:column}.flow-arrow{transform:rotate(90deg)}
+  .topnav{padding:0 10px}.topnav .logo{font-size:.9rem}
+  .container{padding:0 12px}
+}
+
+/* ===== SEARCH ===== */
+.search-box{position:relative;margin-bottom:30px}
+.search-box input{width:100%;padding:14px 20px 14px 44px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:1rem;outline:none;transition:border-color .3s}
+.search-box input:focus{border-color:var(--green)}
+.search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3)}
+
+/* ===== INTERVIEW TIP CALLOUT ===== */
+.interview-tip{background:linear-gradient(135deg,rgba(192,132,252,.1),rgba(94,234,212,.1));border:1px solid var(--purple);border-radius:12px;padding:20px;margin:20px 0}
+.interview-tip h4{color:var(--purple);margin:0 0 8px;font-size:1rem}
+.interview-tip p{color:var(--text2);font-size:.9rem}
+
+/* ===== SIDEBAR TOC (Desktop) ===== */
+.layout-wrap{display:flex;gap:30px}
+.sidebar{position:sticky;top:80px;width:240px;flex-shrink:0;height:calc(100vh - 100px);overflow-y:auto;display:none}
+@media(min-width:1200px){.sidebar{display:block}.main-content{flex:1;min-width:0}}
+.sidebar a{display:block;padding:6px 12px;font-size:.8rem;color:var(--text3);border-radius:6px;margin-bottom:2px;transition:all .2s}
+.sidebar a:hover,.sidebar a.active{color:var(--green);background:var(--bg3);text-decoration:none}
+
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    Shopify Theme Dev
+  </div>
+  <div class="nav-links" id="navLinks">
+    <a href="#overview">Overview</a>
+    <a href="#rendering">Rendering</a>
+    <a href="#liquid">Liquid</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#sections">Sections</a>
+    <a href="#json-templates">JSON Templates</a>
+    <a href="#settings">Settings</a>
+    <a href="#metafields">Metafields</a>
+    <a href="#ajax-api">Ajax API</a>
+    <a href="#performance">Performance</a>
+    <a href="#accessibility">Accessibility</a>
+    <a href="#cli">CLI</a>
+    <a href="#theme-app-ext">App Extensions</a>
+    <a href="#checkout">Checkout</a>
+    <a href="#js-patterns">JS Patterns</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#quiz">Quiz</a>
+    <a href="#interview-qs">Interview Q&A</a>
+  </div>
+</nav>
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="container">
+
+<!-- ===== HERO ===== -->
+<section id="overview">
+  <h1>Shopify Theme Developer Interview Crash Course</h1>
+  <p class="subtitle">Everything you need to pass a senior-level Shopify theme developer technical interview. Interactive diagrams, code examples, and practice questions.</p>
+
+  <div class="card-grid">
+    <div class="mini-card float" style="animation-delay:0s">
+      <h4>Liquid Templating</h4>
+      <p>Objects <code>{{ }}</code>, Tags <code>{% %}</code>, Filters <code>|</code> - the backbone of every Shopify theme</p>
+    </div>
+    <div class="mini-card float" style="animation-delay:.2s">
+      <h4>Theme Architecture</h4>
+      <p>Layouts, templates, sections, blocks, snippets - the OS 2.0 way</p>
+    </div>
+    <div class="mini-card float" style="animation-delay:.4s">
+      <h4>Online Store 2.0</h4>
+      <p>JSON templates, section groups, app blocks - the modern approach</p>
+    </div>
+    <div class="mini-card float" style="animation-delay:.6s">
+      <h4>Performance & A11y</h4>
+      <p>Lighthouse optimization, WCAG 2.0 AA, Web Vitals</p>
+    </div>
+  </div>
+
+  <div class="tip green" style="margin-top:24px">
+    <div class="tip-icon">&#9889;</div>
+    <div class="tip-text">
+      <strong>Your Advantage</strong>
+      You already know Shopify's app ecosystem and Laravel backend. Theme development uses the same concepts (products, collections, metafields) but renders them with Liquid on the server side. Think of Liquid as Blade but for Shopify.
+    </div>
+  </div>
+</section>
+
+<!-- ===== RENDERING PIPELINE ===== -->
+<section id="rendering">
+  <h2><span class="num">1</span> How Shopify Renders a Page</h2>
+  <p>Understanding the rendering pipeline is the #1 most important concept. Every interview question traces back to this.</p>
+
+  <div class="diagram">
+    <div class="flow">
+      <div class="flow-item green">Customer<br>Request<small>GET /products/hat</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item blue">Router<small>Matches template type</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item purple">Layout<small>theme.liquid</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item yellow">Template<small>product.json</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item orange">Sections<small>main-product.liquid</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item pink">HTML Output<small>Sent to browser</small></div>
+    </div>
+  </div>
+
+  <div class="render-pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">1</div>
+      <div class="pipe-text"><strong>Request Received</strong><span>Shopify receives GET /products/hat and identifies this as a <code>product</code> page type</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">2</div>
+      <div class="pipe-text"><strong>Layout Loaded</strong><span><code>layout/theme.liquid</code> wraps everything. Contains <code>{{ content_for_header }}</code> (in &lt;head&gt;) and <code>{{ content_for_layout }}</code> (in &lt;body&gt;). These are REQUIRED.</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">3</div>
+      <div class="pipe-text"><strong>Template Resolved</strong><span><code>templates/product.json</code> is loaded. It defines which sections to render and in what order. The JSON is pure data, no markup.</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">4</div>
+      <div class="pipe-text"><strong>Sections Rendered</strong><span>Each section listed in the JSON template is rendered. Sections live in <code>sections/</code>. Each has a <code>{% schema %}</code> tag defining its settings.</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">5</div>
+      <div class="pipe-text"><strong>Blocks & Snippets</strong><span>Within sections, blocks are iterated. Snippets are included via <code>{% render 'name' %}</code>. All Liquid is resolved server-side.</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">6</div>
+      <div class="pipe-text"><strong>Pure HTML Sent</strong><span>The final output is clean HTML/CSS/JS. The customer never sees Liquid code. Everything is server-rendered.</span></div>
+    </div>
+  </div>
+
+  <div class="interview-tip">
+    <h4>Interview Tip</h4>
+    <p>"Explain the Shopify rendering pipeline" is a guaranteed question. Always mention: Layout wraps Template, Template references Sections, Sections contain Blocks, <code>content_for_header</code> goes in &lt;head&gt;, <code>content_for_layout</code> goes in &lt;body&gt;. All Liquid is server-side rendered - the browser gets pure HTML.</p>
+  </div>
+</section>
+
+<!-- ===== LIQUID TEMPLATING ===== -->
+<section id="liquid">
+  <h2><span class="num">2</span> Liquid Templating Language</h2>
+  <p>Liquid is Shopify's templating language. Created by Shopify's CEO Tobias Lutke. Written in Ruby, processed server-side. Think of it like Laravel's Blade, but simpler.</p>
+
+  <h3>The 3 Building Blocks</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4 style="color:var(--liquid-green)">Objects (Output) <code>{{ }}</code></h4>
+      <p style="font-size:.9rem;color:var(--text2);margin-bottom:10px">Access and display data. Like Blade's <code>{{ $variable }}</code></p>
+      <pre><code><span class="liquid-obj">{{ product.title }}</span>
+<span class="liquid-obj">{{ shop.name }}</span>
+<span class="liquid-obj">{{ customer.first_name }}</span>
+<span class="liquid-obj">{{ cart.total_price | money }}</span></code></pre>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--liquid-tag)">Tags (Logic) <code>{% %}</code></h4>
+      <p style="font-size:.9rem;color:var(--text2);margin-bottom:10px">Control flow & logic. Like Blade's <code>@if / @foreach</code></p>
+      <pre><code><span class="liquid-tag">{% if product.available %}</span>
+  &lt;button&gt;Add to Cart&lt;/button&gt;
+<span class="liquid-tag">{% else %}</span>
+  &lt;span&gt;Sold Out&lt;/span&gt;
+<span class="liquid-tag">{% endif %}</span></code></pre>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--liquid-filter)">Filters <code>|</code></h4>
+      <p style="font-size:.9rem;color:var(--text2);margin-bottom:10px">Transform output. Chainable left-to-right. Like pipes in Unix.</p>
+      <pre><code><span class="liquid-obj">{{ product.title | <span class="liquid-filter">upcase</span> }}</span>
+<span class="liquid-obj">{{ product.price | <span class="liquid-filter">money</span> }}</span>
+<span class="liquid-obj">{{ 'cart' | <span class="liquid-filter">asset_url</span> | <span class="liquid-filter">script_tag</span> }}</span>
+<span class="liquid-obj">{{ 'now' | <span class="liquid-filter">date</span>: '%Y' }}</span></code></pre>
+    </div>
+  </div>
+
+  <!-- LIQUID OBJECTS -->
+  <h3>Essential Liquid Objects</h3>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab(event,'tab-product')">product</button>
+    <button class="tab-btn" onclick="showTab(event,'tab-collection')">collection</button>
+    <button class="tab-btn" onclick="showTab(event,'tab-cart')">cart</button>
+    <button class="tab-btn" onclick="showTab(event,'tab-customer')">customer</button>
+    <button class="tab-btn" onclick="showTab(event,'tab-shop')">shop</button>
+    <button class="tab-btn" onclick="showTab(event,'tab-request')">request</button>
+    <button class="tab-btn" onclick="showTab(event,'tab-global')">Global Objects</button>
+  </div>
+
+  <div class="tab-content active" id="tab-product">
+    <div class="card">
+      <h4>product - The Most Important Object</h4>
+      <div class="table-wrap"><table>
+        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>product.id</code></td><td>Integer</td><td>Unique numeric ID</td></tr>
+        <tr><td><code>product.title</code></td><td>String</td><td>Product name</td></tr>
+        <tr><td><code>product.handle</code></td><td>String</td><td>URL-safe slug (used in URLs)</td></tr>
+        <tr><td><code>product.description</code></td><td>String</td><td>Full HTML description</td></tr>
+        <tr><td><code>product.price</code></td><td>Number</td><td>Price in cents (use <code>| money</code> filter)</td></tr>
+        <tr><td><code>product.compare_at_price</code></td><td>Number</td><td>Original price (for sales)</td></tr>
+        <tr><td><code>product.available</code></td><td>Boolean</td><td>Is any variant in stock?</td></tr>
+        <tr><td><code>product.type</code></td><td>String</td><td>Product type</td></tr>
+        <tr><td><code>product.vendor</code></td><td>String</td><td>Vendor/brand name</td></tr>
+        <tr><td><code>product.tags</code></td><td>Array</td><td>Array of tag strings</td></tr>
+        <tr><td><code>product.variants</code></td><td>Array</td><td>Array of variant objects</td></tr>
+        <tr><td><code>product.options</code></td><td>Array</td><td>Option names: Size, Color, etc.</td></tr>
+        <tr><td><code>product.options_with_values</code></td><td>Array</td><td>Options with all values</td></tr>
+        <tr><td><code>product.images</code></td><td>Array</td><td>All product images</td></tr>
+        <tr><td><code>product.featured_image</code></td><td>Image</td><td>First/main image</td></tr>
+        <tr><td><code>product.selected_variant</code></td><td>Variant</td><td>Currently selected variant (from URL param)</td></tr>
+        <tr><td><code>product.first_available_variant</code></td><td>Variant</td><td>First in-stock variant</td></tr>
+        <tr><td><code>product.url</code></td><td>String</td><td>Relative URL: /products/handle</td></tr>
+        <tr><td><code>product.metafields</code></td><td>Object</td><td>Access metafields: <code>product.metafields.custom.key</code></td></tr>
+        <tr><td><code>product.selected_or_first_available_variant</code></td><td>Variant</td><td>Best variant to show by default</td></tr>
+        <tr><td><code>product.has_only_default_variant</code></td><td>Boolean</td><td>True if no options configured</td></tr>
+        <tr><td><code>product.media</code></td><td>Array</td><td>All media (images + video + 3D)</td></tr>
+      </table></div>
+      <pre><code><span class="comment">&lt;!-- Typical product page pattern --&gt;</span>
+&lt;h1&gt;<span class="liquid-obj">{{ product.title }}</span>&lt;/h1&gt;
+&lt;p class="price"&gt;<span class="liquid-obj">{{ product.price | <span class="liquid-filter">money</span> }}</span>&lt;/p&gt;
+
+<span class="liquid-tag">{% if product.compare_at_price > product.price %}</span>
+  &lt;s&gt;<span class="liquid-obj">{{ product.compare_at_price | <span class="liquid-filter">money</span> }}</span>&lt;/s&gt;
+  &lt;span class="sale-badge"&gt;Sale&lt;/span&gt;
+<span class="liquid-tag">{% endif %}</span>
+
+<span class="liquid-tag">{% for variant in product.variants %}</span>
+  &lt;option value="<span class="liquid-obj">{{ variant.id }}</span>"&gt;
+    <span class="liquid-obj">{{ variant.title }}</span> - <span class="liquid-obj">{{ variant.price | <span class="liquid-filter">money</span> }}</span>
+  &lt;/option&gt;
+<span class="liquid-tag">{% endfor %}</span></code></pre>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-collection">
+    <div class="card">
+      <h4>collection</h4>
+      <div class="table-wrap"><table>
+        <tr><th>Property</th><th>Description</th></tr>
+        <tr><td><code>collection.title</code></td><td>Collection name</td></tr>
+        <tr><td><code>collection.handle</code></td><td>URL slug</td></tr>
+        <tr><td><code>collection.description</code></td><td>HTML description</td></tr>
+        <tr><td><code>collection.products</code></td><td>Paginated array of products</td></tr>
+        <tr><td><code>collection.products_count</code></td><td>Total product count</td></tr>
+        <tr><td><code>collection.all_products_count</code></td><td>Count including unavailable</td></tr>
+        <tr><td><code>collection.image</code></td><td>Collection image</td></tr>
+        <tr><td><code>collection.url</code></td><td>Relative URL</td></tr>
+        <tr><td><code>collection.sort_options</code></td><td>Available sort options</td></tr>
+        <tr><td><code>collection.filters</code></td><td>Available storefront filters</td></tr>
+        <tr><td><code>collection.current_type</code></td><td>Active product type filter</td></tr>
+        <tr><td><code>collection.current_vendor</code></td><td>Active vendor filter</td></tr>
+      </table></div>
+      <pre><code><span class="liquid-tag">{% paginate collection.products by 12 %}</span>
+  <span class="liquid-tag">{% for product in collection.products %}</span>
+    &lt;div class="product-card"&gt;
+      &lt;img src="<span class="liquid-obj">{{ product.featured_image | <span class="liquid-filter">image_url</span>: width: 400 }}</span>"&gt;
+      &lt;h3&gt;<span class="liquid-obj">{{ product.title }}</span>&lt;/h3&gt;
+      &lt;p&gt;<span class="liquid-obj">{{ product.price | <span class="liquid-filter">money</span> }}</span>&lt;/p&gt;
+    &lt;/div&gt;
+  <span class="liquid-tag">{% endfor %}</span>
+
+  <span class="liquid-obj">{{ paginate | <span class="liquid-filter">default_pagination</span> }}</span>
+<span class="liquid-tag">{% endpaginate %}</span></code></pre>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-cart">
+    <div class="card">
+      <h4>cart</h4>
+      <div class="table-wrap"><table>
+        <tr><th>Property</th><th>Description</th></tr>
+        <tr><td><code>cart.items</code></td><td>Array of line items</td></tr>
+        <tr><td><code>cart.item_count</code></td><td>Total quantity</td></tr>
+        <tr><td><code>cart.total_price</code></td><td>Total in cents</td></tr>
+        <tr><td><code>cart.total_discount</code></td><td>Total discounts</td></tr>
+        <tr><td><code>cart.total_weight</code></td><td>Total weight in grams</td></tr>
+        <tr><td><code>cart.note</code></td><td>Cart note from customer</td></tr>
+        <tr><td><code>cart.attributes</code></td><td>Custom cart attributes</td></tr>
+        <tr><td><code>cart.currency</code></td><td>Currency object</td></tr>
+      </table></div>
+      <p style="font-size:.85rem;color:var(--text2);margin-top:8px"><strong>Line item properties:</strong> <code>item.product</code>, <code>item.variant</code>, <code>item.title</code>, <code>item.quantity</code>, <code>item.price</code>, <code>item.line_price</code>, <code>item.url</code>, <code>item.image</code>, <code>item.properties</code>, <code>item.selling_plan_allocation</code></p>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-customer">
+    <div class="card">
+      <h4>customer</h4>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:8px">Only available when logged in. Always check <code>{% if customer %}</code> first!</p>
+      <div class="table-wrap"><table>
+        <tr><th>Property</th><th>Description</th></tr>
+        <tr><td><code>customer.first_name</code></td><td>First name</td></tr>
+        <tr><td><code>customer.last_name</code></td><td>Last name</td></tr>
+        <tr><td><code>customer.email</code></td><td>Email address</td></tr>
+        <tr><td><code>customer.orders</code></td><td>Array of order objects</td></tr>
+        <tr><td><code>customer.orders_count</code></td><td>Total orders</td></tr>
+        <tr><td><code>customer.total_spent</code></td><td>Lifetime spend in cents</td></tr>
+        <tr><td><code>customer.tags</code></td><td>Customer tags (for segmentation)</td></tr>
+        <tr><td><code>customer.addresses</code></td><td>Saved addresses</td></tr>
+        <tr><td><code>customer.default_address</code></td><td>Primary address</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-shop">
+    <div class="card">
+      <h4>shop</h4>
+      <div class="table-wrap"><table>
+        <tr><th>Property</th><th>Description</th></tr>
+        <tr><td><code>shop.name</code></td><td>Store name</td></tr>
+        <tr><td><code>shop.url</code></td><td>Store URL</td></tr>
+        <tr><td><code>shop.email</code></td><td>Store email</td></tr>
+        <tr><td><code>shop.currency</code></td><td>Default currency code</td></tr>
+        <tr><td><code>shop.money_format</code></td><td>Money format string</td></tr>
+        <tr><td><code>shop.description</code></td><td>Store description</td></tr>
+        <tr><td><code>shop.locale</code></td><td>Current locale</td></tr>
+        <tr><td><code>shop.metafields</code></td><td>Shop-level metafields</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-request">
+    <div class="card">
+      <h4>request</h4>
+      <div class="table-wrap"><table>
+        <tr><th>Property</th><th>Description</th></tr>
+        <tr><td><code>request.locale</code></td><td>Current locale object</td></tr>
+        <tr><td><code>request.page_type</code></td><td>Page type: product, collection, index, page, etc.</td></tr>
+        <tr><td><code>request.host</code></td><td>Hostname</td></tr>
+        <tr><td><code>request.path</code></td><td>URL path</td></tr>
+        <tr><td><code>request.design_mode</code></td><td>True if in theme editor (critical for conditional logic!)</td></tr>
+      </table></div>
+      <div class="tip yellow">
+        <div class="tip-icon">&#9888;</div>
+        <div class="tip-text"><strong>request.design_mode is key!</strong> Use this to load preview data or adjust behavior when merchant is customizing in the theme editor.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-global">
+    <div class="card">
+      <h4>Global Objects (Available Everywhere)</h4>
+      <div class="table-wrap"><table>
+        <tr><th>Object</th><th>Description</th></tr>
+        <tr><td><code>settings</code></td><td>Theme settings from settings_schema.json</td></tr>
+        <tr><td><code>routes</code></td><td>Store routes: <code>routes.cart_url</code>, <code>routes.account_url</code>, etc.</td></tr>
+        <tr><td><code>page_title</code></td><td>SEO title for current page</td></tr>
+        <tr><td><code>page_description</code></td><td>SEO meta description</td></tr>
+        <tr><td><code>canonical_url</code></td><td>Canonical URL</td></tr>
+        <tr><td><code>template</code></td><td>Current template name (e.g., "product", "collection")</td></tr>
+        <tr><td><code>template.name</code></td><td>Template name</td></tr>
+        <tr><td><code>template.suffix</code></td><td>Alternate template suffix</td></tr>
+        <tr><td><code>content_for_header</code></td><td>Required in &lt;head&gt; - injects Shopify scripts</td></tr>
+        <tr><td><code>content_for_layout</code></td><td>Required in &lt;body&gt; - renders template content</td></tr>
+        <tr><td><code>all_products</code></td><td>Access any product: <code>all_products['handle']</code></td></tr>
+        <tr><td><code>collections</code></td><td>Access any collection: <code>collections['handle']</code></td></tr>
+        <tr><td><code>linklists</code></td><td>Navigation menus</td></tr>
+        <tr><td><code>pages</code></td><td>Access pages by handle</td></tr>
+        <tr><td><code>blogs</code></td><td>Access blogs by handle</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- LIQUID TAGS -->
+  <h3>Liquid Tags Reference</h3>
+  <div class="card">
+    <h4>Control Flow</h4>
+    <pre><code><span class="comment">{# if / elsif / else / endif #}</span>
+<span class="liquid-tag">{% if product.available %}</span>
+  In Stock
+<span class="liquid-tag">{% elsif product.compare_at_price %}</span>
+  Coming Soon
+<span class="liquid-tag">{% else %}</span>
+  Sold Out
+<span class="liquid-tag">{% endif %}</span>
+
+<span class="comment">{# unless (opposite of if) #}</span>
+<span class="liquid-tag">{% unless product.title == 'Gift Card' %}</span>
+  Regular product
+<span class="liquid-tag">{% endunless %}</span>
+
+<span class="comment">{# case / when #}</span>
+<span class="liquid-tag">{% case template %}</span>
+  <span class="liquid-tag">{% when 'product' %}</span>
+    Product page
+  <span class="liquid-tag">{% when 'collection' %}</span>
+    Collection page
+  <span class="liquid-tag">{% else %}</span>
+    Other page
+<span class="liquid-tag">{% endcase %}</span>
+
+<span class="comment">{# Operators: == != > < >= <= or and contains #}</span>
+<span class="liquid-tag">{% if product.tags contains 'sale' %}</span>
+<span class="liquid-tag">{% if product.type == 'Shirt' and product.available %}</span></code></pre>
+  </div>
+
+  <div class="card">
+    <h4>Iteration</h4>
+    <pre><code><span class="comment">{# for loop #}</span>
+<span class="liquid-tag">{% for product in collection.products %}</span>
+  <span class="liquid-obj">{{ product.title }}</span>
+  <span class="liquid-obj">{{ forloop.index }}</span>     <span class="comment">{# 1, 2, 3... #}</span>
+  <span class="liquid-obj">{{ forloop.index0 }}</span>    <span class="comment">{# 0, 1, 2... #}</span>
+  <span class="liquid-obj">{{ forloop.first }}</span>     <span class="comment">{# true on first #}</span>
+  <span class="liquid-obj">{{ forloop.last }}</span>      <span class="comment">{# true on last #}</span>
+  <span class="liquid-obj">{{ forloop.length }}</span>    <span class="comment">{# total items #}</span>
+<span class="liquid-tag">{% endfor %}</span>
+
+<span class="comment">{# for with limit and offset #}</span>
+<span class="liquid-tag">{% for product in collection.products limit:4 offset:2 %}</span>
+<span class="liquid-tag">{% endfor %}</span>
+
+<span class="comment">{# for with reversed #}</span>
+<span class="liquid-tag">{% for item in cart.items reversed %}</span>
+<span class="liquid-tag">{% endfor %}</span>
+
+<span class="comment">{# for with range #}</span>
+<span class="liquid-tag">{% for i in (1..5) %}</span>
+  <span class="liquid-obj">{{ i }}</span>
+<span class="liquid-tag">{% endfor %}</span>
+
+<span class="comment">{# cycle - alternates between values #}</span>
+<span class="liquid-tag">{% for product in collection.products %}</span>
+  &lt;div class="<span class="liquid-tag">{% cycle 'odd', 'even' %}</span>"&gt;
+<span class="liquid-tag">{% endfor %}</span>
+
+<span class="comment">{# tablerow - generates HTML table rows #}</span>
+<span class="liquid-tag">{% tablerow product in collection.products cols:3 %}</span>
+  <span class="liquid-obj">{{ product.title }}</span>
+<span class="liquid-tag">{% endtablerow %}</span></code></pre>
+  </div>
+
+  <div class="card">
+    <h4>Theme Tags (Critical to Know!)</h4>
+    <pre><code><span class="comment">{# render - MODERN way to include snippets (scoped) #}</span>
+<span class="liquid-tag">{% render 'product-card', product: product, show_vendor: true %}</span>
+
+<span class="comment">{# render with for - iterate within snippet #}</span>
+<span class="liquid-tag">{% render 'product-card' for collection.products as product %}</span>
+
+<span class="comment">{# section - statically include a section #}</span>
+<span class="liquid-tag">{% section 'header' %}</span>
+
+<span class="comment">{# sections - render a section group #}</span>
+<span class="liquid-tag">{% sections 'header-group' %}</span>
+
+<span class="comment">{# form #}</span>
+<span class="liquid-tag">{% form 'product', product %}</span>
+  &lt;input type="hidden" name="id" value="<span class="liquid-obj">{{ product.selected_or_first_available_variant.id }}</span>"&gt;
+  &lt;button type="submit"&gt;Add to Cart&lt;/button&gt;
+<span class="liquid-tag">{% endform %}</span>
+
+<span class="comment">{# liquid tag - multi-line Liquid without {% %} on each line #}</span>
+<span class="liquid-tag">{% liquid
+  assign featured = collection.products | first
+  if featured.available
+    echo featured.title
+  endif
+%}</span>
+
+<span class="comment">{# Variable tags #}</span>
+<span class="liquid-tag">{% assign my_var = 'hello' %}</span>
+<span class="liquid-tag">{% capture my_html %}</span>&lt;p&gt;Hello <span class="liquid-obj">{{ customer.name }}</span>&lt;/p&gt;<span class="liquid-tag">{% endcapture %}</span>
+<span class="liquid-obj">{{ my_html }}</span>
+
+<span class="comment">{# increment / decrement #}</span>
+<span class="liquid-tag">{% increment counter %}</span>  <span class="comment">{# outputs 0, 1, 2... #}</span>
+
+<span class="comment">{# raw - outputs Liquid code without processing #}</span>
+<span class="liquid-tag">{% raw %}</span>{{ product.title }}<span class="liquid-tag">{% endraw %}</span></code></pre>
+
+    <div class="tip red">
+      <div class="tip-icon">&#9888;</div>
+      <div class="tip-text">
+        <strong>render vs include</strong>
+        <code>{% include %}</code> is DEPRECATED. Always use <code>{% render %}</code>. Key difference: <code>render</code> creates an isolated scope - the snippet cannot access outer variables unless explicitly passed. This is intentional for performance and maintainability.
+      </div>
+    </div>
+  </div>
+
+  <!-- LIQUID FILTERS -->
+  <h3>Essential Liquid Filters</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4 style="color:var(--green)">Money Filters</h4>
+      <pre><code><span class="liquid-obj">{{ product.price | <span class="liquid-filter">money</span> }}</span>
+<span class="comment">{# $10.00 #}</span>
+
+<span class="liquid-obj">{{ product.price | <span class="liquid-filter">money_with_currency</span> }}</span>
+<span class="comment">{# $10.00 USD #}</span>
+
+<span class="liquid-obj">{{ product.price | <span class="liquid-filter">money_without_trailing_zeros</span> }}</span>
+<span class="comment">{# $10 #}</span>
+
+<span class="liquid-obj">{{ product.price | <span class="liquid-filter">money_without_currency</span> }}</span>
+<span class="comment">{# 10.00 #}</span></code></pre>
+      <p style="font-size:.8rem;color:var(--text3);margin-top:8px">Prices are in cents! $10.00 = 1000</p>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--yellow)">URL & Asset Filters</h4>
+      <pre><code><span class="liquid-obj">{{ 'style.css' | <span class="liquid-filter">asset_url</span> }}</span>
+<span class="comment">{# CDN URL for theme asset #}</span>
+
+<span class="liquid-obj">{{ 'style.css' | <span class="liquid-filter">asset_url</span> | <span class="liquid-filter">stylesheet_tag</span> }}</span>
+<span class="comment">{# Full &lt;link&gt; tag #}</span>
+
+<span class="liquid-obj">{{ 'app.js' | <span class="liquid-filter">asset_url</span> | <span class="liquid-filter">script_tag</span> }}</span>
+<span class="comment">{# Full &lt;script&gt; tag #}</span>
+
+<span class="liquid-obj">{{ product | <span class="liquid-filter">product_url</span> }}</span>
+<span class="liquid-obj">{{ product.url | <span class="liquid-filter">within</span>: collection }}</span>
+
+<span class="liquid-obj">{{ product.featured_image | <span class="liquid-filter">image_url</span>: width: 600 }}</span>
+<span class="liquid-obj">{{ product.featured_image | <span class="liquid-filter">image_url</span>: width: 600 | <span class="liquid-filter">image_tag</span> }}</span></code></pre>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--purple)">String Filters</h4>
+      <pre><code><span class="liquid-filter">upcase</span>  <span class="comment">HELLO</span>
+<span class="liquid-filter">downcase</span>  <span class="comment">hello</span>
+<span class="liquid-filter">capitalize</span>  <span class="comment">Hello</span>
+<span class="liquid-filter">strip</span>  <span class="comment">trim whitespace</span>
+<span class="liquid-filter">strip_html</span>  <span class="comment">remove HTML</span>
+<span class="liquid-filter">truncate</span>: 20  <span class="comment">limit chars</span>
+<span class="liquid-filter">truncatewords</span>: 5  <span class="comment">limit words</span>
+<span class="liquid-filter">replace</span>: 'old', 'new'
+<span class="liquid-filter">remove</span>: 'string'
+<span class="liquid-filter">prepend</span>: 'prefix'
+<span class="liquid-filter">append</span>: 'suffix'
+<span class="liquid-filter">split</span>: ', '  <span class="comment">string to array</span>
+<span class="liquid-filter">newline_to_br</span>  <span class="comment">\n to &lt;br&gt;</span>
+<span class="liquid-filter">escape</span>  <span class="comment">HTML escape</span>
+<span class="liquid-filter">url_encode</span>
+<span class="liquid-filter">handleize</span>  <span class="comment">"My Product" &rarr; "my-product"</span></code></pre>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--blue)">Array Filters</h4>
+      <pre><code><span class="liquid-filter">size</span>  <span class="comment">count items</span>
+<span class="liquid-filter">first</span> / <span class="liquid-filter">last</span>
+<span class="liquid-filter">join</span>: ', '  <span class="comment">array to string</span>
+<span class="liquid-filter">sort</span>: 'title'
+<span class="liquid-filter">sort_natural</span>: 'title'
+<span class="liquid-filter">reverse</span>
+<span class="liquid-filter">map</span>: 'title'  <span class="comment">extract property</span>
+<span class="liquid-filter">where</span>: 'available', true  <span class="comment">FILTER!</span>
+<span class="liquid-filter">concat</span>: other_array
+<span class="liquid-filter">uniq</span>  <span class="comment">remove duplicates</span>
+<span class="liquid-filter">compact</span>  <span class="comment">remove nils</span>
+
+<span class="comment">{# Example: Get all available product titles #}</span>
+<span class="liquid-obj">{{ collection.products
+   | <span class="liquid-filter">where</span>: 'available', true
+   | <span class="liquid-filter">map</span>: 'title'
+   | <span class="liquid-filter">join</span>: ', ' }}</span></code></pre>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--orange)">Translation Filter</h4>
+      <pre><code><span class="comment">{# t filter - for i18n from locale files #}</span>
+<span class="liquid-obj">{{ 'products.product.add_to_cart' | <span class="liquid-filter">t</span> }}</span>
+
+<span class="comment">{# With variables #}</span>
+<span class="liquid-obj">{{ 'general.greeting' | <span class="liquid-filter">t</span>: name: customer.first_name }}</span>
+
+<span class="comment">{# In locales/en.default.json: #}</span>
+{
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart"
+    }
+  },
+  "general": {
+    "greeting": "Hello, {{ name }}!"
+  }
+}</code></pre>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--pink)">Image Filters (Critical!)</h4>
+      <pre><code><span class="comment">{# Modern way - ALWAYS use this #}</span>
+<span class="liquid-obj">{{ image | <span class="liquid-filter">image_url</span>: width: 800 }}</span>
+<span class="comment">{# Returns CDN URL with size #}</span>
+
+<span class="liquid-obj">{{ image | <span class="liquid-filter">image_url</span>: width: 800 | <span class="liquid-filter">image_tag</span>:
+  loading: 'lazy',
+  widths: '200,400,800',
+  sizes: '(max-width: 768px) 100vw, 50vw',
+  alt: product.title }}</span>
+<span class="comment">{# Generates responsive &lt;img&gt; with srcset! #}</span>
+
+<span class="liquid-obj">{{ product.featured_image | <span class="liquid-filter">image_url</span>: width: 100, height: 100, crop: 'center' }}</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ===== THEME ARCHITECTURE ===== -->
+<section id="architecture">
+  <h2><span class="num">3</span> Theme File Structure</h2>
+
+  <div class="diagram">
+    <div class="tree">
+<span class="dir">my-theme/</span>
+├── <span class="dir">assets/</span>          <span class="desc">CSS, JS, images, fonts - served from Shopify CDN</span>
+│   ├── <span class="file">base.css</span>
+│   ├── <span class="file">component-card.css</span>
+│   └── <span class="file">global.js</span>
+├── <span class="dir">blocks/</span>          <span class="desc">Theme blocks - reusable across sections (NEW in OS 2.0+)</span>
+│   └── <span class="file">rating.liquid</span>
+├── <span class="dir">config/</span>          <span class="desc">Theme settings definitions and stored values</span>
+│   ├── <span class="file">settings_schema.json</span>   <span class="desc">Defines all settings</span>
+│   └── <span class="file">settings_data.json</span>    <span class="desc">Stores current values + presets</span>
+├── <span class="dir">layout/</span>          <span class="desc">Layout wrappers - theme.liquid is REQUIRED</span>
+│   ├── <span class="req">theme.liquid</span>       <span class="desc">REQUIRED - main layout</span>
+│   └── <span class="file">password.liquid</span>    <span class="desc">Password page layout</span>
+├── <span class="dir">locales/</span>         <span class="desc">Translation files (i18n)</span>
+│   ├── <span class="file">en.default.json</span>
+│   └── <span class="file">fr.json</span>
+├── <span class="dir">sections/</span>        <span class="desc">Modular content blocks with {% schema %}</span>
+│   ├── <span class="file">header.liquid</span>
+│   ├── <span class="file">main-product.liquid</span>
+│   ├── <span class="file">footer.liquid</span>
+│   ├── <span class="file">header-group.json</span>  <span class="desc">Section group</span>
+│   └── <span class="file">footer-group.json</span>  <span class="desc">Section group</span>
+├── <span class="dir">snippets/</span>        <span class="desc">Reusable partials - like Blade @include</span>
+│   ├── <span class="file">product-card.liquid</span>
+│   ├── <span class="file">icon-cart.liquid</span>
+│   └── <span class="file">price.liquid</span>
+└── <span class="dir">templates/</span>       <span class="desc">Page templates - JSON (modern) or Liquid (legacy)</span>
+    ├── <span class="file">index.json</span>        <span class="desc">Homepage</span>
+    ├── <span class="file">product.json</span>      <span class="desc">Product page</span>
+    ├── <span class="file">collection.json</span>   <span class="desc">Collection page</span>
+    ├── <span class="file">page.json</span>         <span class="desc">Static page</span>
+    ├── <span class="file">blog.json</span>         <span class="desc">Blog page</span>
+    ├── <span class="file">article.json</span>      <span class="desc">Blog post</span>
+    ├── <span class="file">cart.json</span>         <span class="desc">Cart page</span>
+    ├── <span class="file">search.json</span>       <span class="desc">Search results</span>
+    ├── <span class="file">404.json</span>          <span class="desc">404 page</span>
+    ├── <span class="file">password.json</span>     <span class="desc">Password page</span>
+    ├── <span class="file">gift_card.liquid</span>  <span class="desc">Must be Liquid</span>
+    ├── <span class="dir">customers/</span>
+    │   ├── <span class="file">login.json</span>
+    │   ├── <span class="file">register.json</span>
+    │   ├── <span class="file">account.json</span>
+    │   └── <span class="file">order.json</span>
+    └── <span class="dir">metaobject/</span>     <span class="desc">Metaobject templates</span>
+        └── <span class="file">testimonial.json</span>
+    </div>
+  </div>
+
+  <div class="tip yellow">
+    <div class="tip-icon">&#9888;</div>
+    <div class="tip-text">
+      <strong>Only layout/theme.liquid is strictly required</strong> for a valid theme. It must contain <code>{{ content_for_header }}</code> in &lt;head&gt; and <code>{{ content_for_layout }}</code> in &lt;body&gt;. No subdirectories beyond the defined ones are supported.
+    </div>
+  </div>
+
+  <h3>Layout File Structure (theme.liquid)</h3>
+  <div class="card">
+    <pre><code><span class="html-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="html-tag">&lt;html</span> lang="<span class="liquid-obj">{{ request.locale.iso_code }}</span>"<span class="html-tag">&gt;</span>
+<span class="html-tag">&lt;head&gt;</span>
+  <span class="html-tag">&lt;meta</span> charset="utf-8"<span class="html-tag">&gt;</span>
+  <span class="html-tag">&lt;meta</span> name="viewport" content="width=device-width, initial-scale=1"<span class="html-tag">&gt;</span>
+  <span class="html-tag">&lt;title&gt;</span><span class="liquid-obj">{{ page_title }}</span><span class="html-tag">&lt;/title&gt;</span>
+
+  <span class="comment">&lt;!-- REQUIRED: Injects Shopify scripts, analytics, apps --&gt;</span>
+  <span class="liquid-obj">{{ content_for_header }}</span>
+
+  <span class="liquid-obj">{{ 'base.css' | asset_url | stylesheet_tag }}</span>
+<span class="html-tag">&lt;/head&gt;</span>
+<span class="html-tag">&lt;body&gt;</span>
+
+  <span class="comment">&lt;!-- Section groups replace static {% section 'header' %} --&gt;</span>
+  <span class="liquid-tag">{% sections 'header-group' %}</span>
+
+  <span class="html-tag">&lt;main</span> id="MainContent" role="main" tabindex="-1"<span class="html-tag">&gt;</span>
+    <span class="comment">&lt;!-- REQUIRED: Renders the current template --&gt;</span>
+    <span class="liquid-obj">{{ content_for_layout }}</span>
+  <span class="html-tag">&lt;/main&gt;</span>
+
+  <span class="liquid-tag">{% sections 'footer-group' %}</span>
+
+<span class="html-tag">&lt;/body&gt;</span>
+<span class="html-tag">&lt;/html&gt;</span></code></pre>
+  </div>
+</section>
+
+<!-- ===== SECTIONS & BLOCKS ===== -->
+<section id="sections">
+  <h2><span class="num">4</span> Sections & Blocks</h2>
+  <p>Sections are the building blocks of every Shopify page. Each section is a self-contained, configurable module.</p>
+
+  <div class="diagram">
+    <div class="flow">
+      <div class="flow-item purple">JSON Template<small>product.json</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item green">Section<small>main-product.liquid</small></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item yellow">Block: Title<small>type: "title"</small></div>
+    </div>
+    <div style="height:10px"></div>
+    <div class="flow">
+      <div style="width:200px"></div>
+      <div class="flow-arrow" style="visibility:hidden">&#10132;</div>
+      <div style="width:200px"></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item orange">Block: Price<small>type: "price"</small></div>
+    </div>
+    <div style="height:10px"></div>
+    <div class="flow">
+      <div style="width:200px"></div>
+      <div class="flow-arrow" style="visibility:hidden">&#10132;</div>
+      <div style="width:200px"></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-item blue">Block: @app<small>App block</small></div>
+    </div>
+  </div>
+
+  <h3>Complete Section with Schema</h3>
+  <div class="card">
+    <pre><code><span class="comment">&lt;!-- sections/featured-collection.liquid --&gt;</span>
+
+<span class="liquid-tag">{% schema %}</span>
+{
+  "name": "Featured Collection",
+  "tag": "section",
+  "class": "featured-collection",
+  "limit": 2,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Featured Products"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Columns",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Product Card",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_secondary_image",
+          "label": "Show second image on hover",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured Collection",
+      "category": "Collection"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["index", "collection", "page"]
+  }
+}
+<span class="liquid-tag">{% endschema %}</span>
+
+<span class="comment">&lt;!-- Section HTML --&gt;</span>
+&lt;div class="section-<span class="liquid-obj">{{ section.id }}</span>"&gt;
+  <span class="liquid-tag">{% if section.settings.heading != blank %}</span>
+    &lt;h2&gt;<span class="liquid-obj">{{ section.settings.heading }}</span>&lt;/h2&gt;
+  <span class="liquid-tag">{% endif %}</span>
+
+  <span class="liquid-tag">{% assign collection = section.settings.collection %}</span>
+  <span class="liquid-tag">{% if collection != blank %}</span>
+    &lt;div class="grid grid--<span class="liquid-obj">{{ section.settings.columns }}</span>-col"&gt;
+      <span class="liquid-tag">{% for product in collection.products limit: section.settings.products_to_show %}</span>
+        <span class="liquid-tag">{% render 'product-card', product: product, show_vendor: section.settings.show_vendor %}</span>
+      <span class="liquid-tag">{% endfor %}</span>
+    &lt;/div&gt;
+  <span class="liquid-tag">{% endif %}</span>
+
+  <span class="comment">&lt;!-- Render blocks (including @app blocks) --&gt;</span>
+  <span class="liquid-tag">{% for block in section.blocks %}</span>
+    <span class="liquid-tag">{% case block.type %}</span>
+      <span class="liquid-tag">{% when '@app' %}</span>
+        <span class="liquid-tag">{% render block %}</span>
+      <span class="liquid-tag">{% when 'product_card' %}</span>
+        <span class="comment">&lt;!-- Custom block content --&gt;</span>
+    <span class="liquid-tag">{% endcase %}</span>
+  <span class="liquid-tag">{% endfor %}</span>
+&lt;/div&gt;
+
+<span class="comment">&lt;!-- Section-specific CSS (scoped) --&gt;</span>
+<span class="liquid-tag">{% style %}</span>
+  .section-<span class="liquid-obj">{{ section.id }}</span> {
+    padding: 40px 0;
+  }
+<span class="liquid-tag">{% endstyle %}</span></code></pre>
+  </div>
+
+  <h3>Schema Properties Reference</h3>
+  <div class="schema-visual">
+    <div class="schema-block" style="border-top-color:var(--green)"><div class="label">name</div><div class="value">Display title in editor</div></div>
+    <div class="schema-block" style="border-top-color:var(--yellow)"><div class="label">tag</div><div class="value">Wrapper element (div, section, article)</div></div>
+    <div class="schema-block" style="border-top-color:var(--purple)"><div class="label">class</div><div class="value">CSS class (always has shopify-section)</div></div>
+    <div class="schema-block" style="border-top-color:var(--orange)"><div class="label">limit</div><div class="value">Max times added (1 or 2)</div></div>
+    <div class="schema-block" style="border-top-color:var(--pink)"><div class="label">settings</div><div class="value">Input fields for merchants</div></div>
+    <div class="schema-block" style="border-top-color:var(--blue)"><div class="label">blocks</div><div class="value">Nested content types</div></div>
+    <div class="schema-block" style="border-top-color:var(--accent)"><div class="label">presets</div><div class="value">Default configs (required to show in "Add section")</div></div>
+    <div class="schema-block" style="border-top-color:var(--red)"><div class="label">enabled_on / disabled_on</div><div class="value">Template restrictions (use ONE, never both)</div></div>
+  </div>
+
+  <div class="tip green">
+    <div class="tip-icon">&#9889;</div>
+    <div class="tip-text">
+      <strong>block.shopify_attributes</strong> - Always include <code>{{ block.shopify_attributes }}</code> on each block's wrapper div. This enables the theme editor to identify and select blocks. Forgetting this is a common mistake!
+    </div>
+  </div>
+
+  <h3>Section Groups (Header/Footer)</h3>
+  <div class="card">
+    <p style="margin-bottom:12px">Section groups replace static <code>{% section 'header' %}</code> calls. They let merchants add/remove/reorder sections in the header and footer.</p>
+    <pre><code><span class="comment">// sections/header-group.json</span>
+{
+  "type": "header",
+  "name": "Header group",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "settings": {}
+    },
+    "header": {
+      "type": "header",
+      "settings": {}
+    }
+  },
+  "order": ["announcement-bar", "header"]
+}
+
+<span class="comment">&lt;!-- In layout/theme.liquid: --&gt;</span>
+<span class="liquid-tag">{% sections 'header-group' %}</span>  <span class="comment">&lt;!-- replaces {% section 'header' %} --&gt;</span></code></pre>
+    <p style="font-size:.85rem;color:var(--text2);margin-top:8px"><strong>Limits:</strong> Max 25 sections per group, max 50 blocks per section, max 20 group files per theme.</p>
+  </div>
+</section>
+
+<!-- ===== JSON TEMPLATES ===== -->
+<section id="json-templates">
+  <h2><span class="num">5</span> JSON Templates (Online Store 2.0)</h2>
+
+  <div class="compare">
+    <div class="compare-col legacy">
+      <h4>Legacy (Liquid Templates)</h4>
+      <ul>
+        <li>Contain HTML + Liquid directly</li>
+        <li>Sections hardcoded with <code>{% section 'name' %}</code></li>
+        <li>Merchants CANNOT add/remove/reorder sections</li>
+        <li>Section data stored in settings_data.json</li>
+        <li>Still required for gift_card.liquid</li>
+      </ul>
+    </div>
+    <div class="compare-col modern">
+      <h4>Modern (JSON Templates)</h4>
+      <ul>
+        <li>Pure data - no markup, no Liquid</li>
+        <li>Define sections + settings + order</li>
+        <li>Merchants CAN add/remove/reorder sections</li>
+        <li>Section data stored IN the template</li>
+        <li>Support app blocks from theme app extensions</li>
+        <li>Up to 25 sections per template</li>
+        <li>Up to 1,000 templates per theme</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>JSON Template Structure</h3>
+  <div class="card">
+    <pre><code><span class="comment">// templates/product.json</span>
+{
+  "layout": "theme",          <span class="comment">// Which layout to use (or false for none)</span>
+  "wrapper": "main",          <span class="comment">// Optional HTML wrapper element</span>
+  "sections": {
+    "main": {                  <span class="comment">// Section ID (your key)</span>
+      "type": "main-product",  <span class="comment">// Maps to sections/main-product.liquid</span>
+      "disabled": false,
+      "settings": {
+        "show_vendor": true
+      },
+      "blocks": {
+        "title_block": {
+          "type": "title",
+          "settings": {}
+        },
+        "price_block": {
+          "type": "price",
+          "settings": {}
+        },
+        "buy_button": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true
+          }
+        }
+      },
+      "block_order": ["title_block", "price_block", "buy_button"]
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like"
+      }
+    }
+  },
+  "order": ["main", "recommendations"]  <span class="comment">// Render order</span>
+}</code></pre>
+  </div>
+
+  <div class="tip purple">
+    <div class="tip-icon">&#128161;</div>
+    <div class="tip-text">
+      <strong>Alternate Templates</strong>
+      Create alternate templates using dot notation: <code>product.special.json</code>. Merchants can then assign different templates to different products in the admin. This is how you create unique layouts for specific products without changing the code.
+    </div>
+  </div>
+</section>
+
+<!-- ===== SETTINGS ===== -->
+<section id="settings">
+  <h2><span class="num">6</span> Theme Settings</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>settings_schema.json</h4>
+      <p style="font-size:.85rem;color:var(--text2)">Defines all global theme settings. An array of category objects. Each category has a name and settings array.</p>
+      <pre><code>[
+  {
+    "name": "theme_info",
+    "theme_name": "My Theme",
+    "theme_version": "1.0.0"
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_primary",
+        "label": "Primary color",
+        "default": "#000000"
+      }
+    ]
+  }
+]
+
+<span class="comment">{# Access in Liquid: #}</span>
+<span class="liquid-obj">{{ settings.color_primary }}</span></code></pre>
+    </div>
+    <div class="card">
+      <h4>settings_data.json</h4>
+      <p style="font-size:.85rem;color:var(--text2)">Stores actual values. Has <code>current</code> (active values) and <code>presets</code> (up to 5 pre-configured designs). Max 1.5 MB.</p>
+      <pre><code>{
+  "current": {
+    "color_primary": "#ff0000"
+  },
+  "presets": {
+    "Default": {
+      "color_primary": "#000000"
+    },
+    "Light": {
+      "color_primary": "#ffffff"
+    }
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <h3>All Setting Input Types</h3>
+  <div class="cheat-grid">
+    <div class="cheat-item"><div class="cheat-label">Basic</div><code>text, textarea, number, checkbox, radio, range, select</code></div>
+    <div class="cheat-item"><div class="cheat-label">Color</div><code>color, color_background</code></div>
+    <div class="cheat-item"><div class="cheat-label">Font</div><code>font_picker</code></div>
+    <div class="cheat-item"><div class="cheat-label">Resource</div><code>collection, product, blog, page, article</code></div>
+    <div class="cheat-item"><div class="cheat-label">Media</div><code>image_picker, video, video_url</code></div>
+    <div class="cheat-item"><div class="cheat-label">Content</div><code>richtext, inline_richtext, html</code></div>
+    <div class="cheat-item"><div class="cheat-label">Navigation</div><code>link_list, url</code></div>
+    <div class="cheat-item"><div class="cheat-label">Meta</div><code>metaobject, metaobject_list, product_list, collection_list</code></div>
+    <div class="cheat-item"><div class="cheat-label">Sidebar (no value)</div><code>header, paragraph</code></div>
+  </div>
+</section>
+
+<!-- ===== METAFIELDS ===== -->
+<section id="metafields">
+  <h2><span class="num">7</span> Metafields & Metaobjects</h2>
+
+  <div class="card">
+    <h4>Accessing Metafields in Liquid</h4>
+    <pre><code><span class="comment">{# Pattern: resource.metafields.namespace.key #}</span>
+<span class="liquid-obj">{{ product.metafields.custom.warranty }}</span>
+<span class="liquid-obj">{{ product.metafields.custom.warranty.value }}</span>
+<span class="liquid-obj">{{ page.metafields.custom.banner_image.value | image_url: width: 800 | image_tag }}</span>
+<span class="liquid-obj">{{ shop.metafields.custom.announcement }}</span>
+
+<span class="comment">{# Available on: products, variants, collections, #}</span>
+<span class="comment">{# customers, orders, pages, articles, blogs, shop #}</span></code></pre>
+  </div>
+
+  <div class="card">
+    <h4>Metaobjects - Custom Content Types</h4>
+    <pre><code><span class="comment">{# Global access (any template) #}</span>
+<span class="liquid-obj">{{ metaobjects.testimonials.homepage.title }}</span>
+<span class="liquid-obj">{{ metaobjects['highlights']['washable'].image.value }}</span>
+
+<span class="comment">{# In metaobject templates (templates/metaobject/testimonial.json) #}</span>
+<span class="liquid-obj">{{ metaobject.system.handle }}</span>
+<span class="liquid-obj">{{ metaobject.field_key }}</span>
+<span class="liquid-obj">{{ metaobject.field_key.value }}</span>
+
+<span class="comment">{# Each metaobject entry gets a unique URL (SEO-friendly) #}</span>
+<span class="comment">{# Must enable onlineStore capability on the definition #}</span></code></pre>
+  </div>
+
+  <h3>Dynamic Sources</h3>
+  <p style="font-size:.9rem;color:var(--text2)">Dynamic sources let merchants connect section/block settings to product metafields, collection data, etc. through the theme editor - no code changes needed. Limits: 100 per JSON template, 50 per setting.</p>
+</section>
+
+<!-- ===== AJAX API ===== -->
+<section id="ajax-api">
+  <h2><span class="num">8</span> Ajax API (Cart Operations)</h2>
+  <p>The Ajax API provides REST endpoints for client-side cart operations. No authentication needed. Base URL: <code>window.Shopify.routes.root</code></p>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr>
+      <tr><td><code>/cart.js</code></td><td>GET</td><td>Get full cart state</td></tr>
+      <tr><td><code>/cart/add.js</code></td><td>POST</td><td>Add variant(s) to cart</td></tr>
+      <tr><td><code>/cart/update.js</code></td><td>POST</td><td>Update quantities / attributes</td></tr>
+      <tr><td><code>/cart/change.js</code></td><td>POST</td><td>Change specific line item</td></tr>
+      <tr><td><code>/cart/clear.js</code></td><td>POST</td><td>Empty the cart</td></tr>
+      <tr><td><code>/products/{handle}.js</code></td><td>GET</td><td>Fetch product JSON</td></tr>
+      <tr><td><code>/recommendations/products.json</code></td><td>GET</td><td>Product recommendations</td></tr>
+      <tr><td><code>/search/suggest.json</code></td><td>GET</td><td>Predictive search</td></tr>
+    </table>
+  </div>
+
+  <h3>Cart Add Example</h3>
+  <div class="card">
+    <pre><code><span class="comment">// Add to cart with Ajax API</span>
+fetch(window.Shopify.routes.root + 'cart/add.js', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    items: [{
+      id: 36110175633573,       <span class="comment">// Variant ID (not product ID!)</span>
+      quantity: 2,
+      properties: {
+        "Engraving": "Hello"   <span class="comment">// Line item properties</span>
+      }
+    }]
+  })
+})
+.then(res => res.json())
+.then(data => {
+  <span class="comment">// Update cart UI</span>
+  console.log(data);
+});
+
+<span class="comment">// Section Rendering API - re-render sections without page reload</span>
+fetch('/cart/add.js', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    items: [{ id: variantId, quantity: 1 }],
+    sections: 'cart-drawer,cart-icon-bubble'  <span class="comment">// Request section HTML!</span>
+  })
+})
+.then(res => res.json())
+.then(data => {
+  <span class="comment">// data.sections contains rendered HTML for each section</span>
+  document.getElementById('cart-drawer').innerHTML =
+    data.sections['cart-drawer'];
+});</code></pre>
+  </div>
+
+  <div class="interview-tip">
+    <h4>Interview Tip - Section Rendering API</h4>
+    <p>The Section Rendering API lets you request rendered section HTML alongside cart operations. Pass <code>sections</code> parameter with section IDs. The response includes pre-rendered HTML that you can swap into the DOM. This is how modern themes update the cart drawer and header cart count without a full page reload.</p>
+  </div>
+</section>
+
+<!-- ===== PERFORMANCE ===== -->
+<section id="performance">
+  <h2><span class="num">9</span> Performance Optimization</h2>
+  <p>Target: <strong>60+ average Lighthouse score</strong> across home, product, and collection pages for Theme Store.</p>
+
+  <div class="card-grid">
+    <div class="mini-card">
+      <h4>JavaScript</h4>
+      <p>Target &lt;16 KB minified. No jQuery, no React/Vue/Angular. Use native DOM APIs. <code>defer</code> or <code>async</code> all scripts. Use Web Components for interactivity. Dawn uses zero frameworks.</p>
+    </div>
+    <div class="mini-card">
+      <h4>CSS</h4>
+      <p>Inline critical (above-fold) CSS in &lt;head&gt;. Use <code>preload</code> for render-blocking stylesheets. Avoid large frameworks. Use CSS custom properties for theming.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Images</h4>
+      <p>Always use <code>image_url</code> + <code>image_tag</code> filters for responsive srcset. <code>loading="lazy"</code> on below-fold images only. Never lazy-load above the fold (hurts LCP). Set width/height to prevent CLS.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Fonts</h4>
+      <p>Prefer system fonts (zero download). If web fonts: <code>font-display: swap</code> + preload critical files. Dawn defaults to system fonts.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Liquid Optimization</h4>
+      <p>Sort/filter BEFORE loops, not inside. Use <code>{% liquid %}</code> tag to reduce whitespace. Run <code>shopify theme check</code> for issues. Use Theme Inspector Chrome extension.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Resource Loading</h4>
+      <p>Max 2 <code>preload</code> hints per template. Host all assets on Shopify CDN (HTTP/2). Use <code>preload_tag</code> filter. Use <code>stylesheet_tag: preload: true</code>.</p>
+    </div>
+  </div>
+
+  <h3>Image Best Practice Pattern</h3>
+  <div class="card">
+    <pre><code><span class="comment">&lt;!-- CORRECT: Responsive images with srcset --&gt;</span>
+<span class="liquid-obj">{{ product.featured_image
+  | <span class="liquid-filter">image_url</span>: width: 1200
+  | <span class="liquid-filter">image_tag</span>:
+    loading: 'lazy',
+    widths: '300,600,900,1200',
+    sizes: '(max-width: 768px) 100vw, 50vw',
+    alt: product.title
+}}</span>
+
+<span class="comment">&lt;!-- ABOVE THE FOLD: No lazy loading! --&gt;</span>
+<span class="liquid-obj">{{ product.featured_image
+  | <span class="liquid-filter">image_url</span>: width: 1200
+  | <span class="liquid-filter">image_tag</span>:
+    widths: '300,600,900,1200',
+    sizes: '(max-width: 768px) 100vw, 50vw',
+    fetchpriority: 'high',
+    alt: product.title
+}}</span></code></pre>
+  </div>
+</section>
+
+<!-- ===== ACCESSIBILITY ===== -->
+<section id="accessibility">
+  <h2><span class="num">10</span> Accessibility (WCAG 2.0 AA)</h2>
+  <p>Shopify themes must meet WCAG 2.0 Level AA. This is tested during Theme Store review and increasingly asked in interviews.</p>
+
+  <div class="card-grid">
+    <div class="mini-card">
+      <h4>Keyboard Navigation</h4>
+      <p>All interactive elements must be keyboard-operable. Focus order = DOM order. Visible focus indicators required. Escape closes modals. No context changes on focus.</p>
+    </div>
+    <div class="mini-card">
+      <h4>ARIA Attributes</h4>
+      <p><code>aria-expanded</code> on collapsibles, <code>aria-controls</code> for hidden containers, <code>aria-current</code> for nav, <code>aria-live</code> for dynamic content (cart count), <code>aria-describedby</code> for errors.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Color Contrast</h4>
+      <p>Text &lt;24px: <strong>4.5:1</strong> ratio. Large text: <strong>3:1</strong>. Icons: <strong>3:1</strong>. Input borders: <strong>3:1</strong>. Color alone must never convey information.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Semantic HTML</h4>
+      <p><code>&lt;nav&gt;</code> for navigation, <code>&lt;main&gt;</code> for content, logical h1-h6, <code>&lt;label for="..."&gt;</code> on inputs. <code>lang</code> attribute on &lt;html&gt;.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Skip Links</h4>
+      <p>Must have "Skip to content" link. Visible on focus. Main content uses <code>tabindex="-1"</code> to receive focus.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Touch Targets</h4>
+      <p>Minimum <strong>44x44 CSS pixels</strong> for primary controls (buttons, menu links, cart controls, close buttons).</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>Skip Link Pattern</h4>
+    <pre><code><span class="comment">&lt;!-- First element in body --&gt;</span>
+&lt;a href="#MainContent" class="skip-link"&gt;
+  <span class="liquid-obj">{{ 'accessibility.skip_to_content' | <span class="liquid-filter">t</span> }}</span>
+&lt;/a&gt;
+
+<span class="comment">&lt;!-- CSS --&gt;</span>
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 12px 24px;
+}
+.skip-link:focus {
+  top: 10px;
+}
+
+<span class="comment">&lt;!-- Target --&gt;</span>
+&lt;main id="MainContent" role="main" tabindex="-1"&gt;</code></pre>
+  </div>
+</section>
+
+<!-- ===== CLI ===== -->
+<section id="cli">
+  <h2><span class="num">11</span> Shopify CLI for Themes</h2>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Command</th><th>Purpose</th></tr>
+      <tr><td><code>shopify theme init</code></td><td>Scaffold new theme (defaults to Skeleton theme)</td></tr>
+      <tr><td><code>shopify theme dev</code></td><td>Local dev server at 127.0.0.1:9292 with hot reload</td></tr>
+      <tr><td><code>shopify theme push</code></td><td>Upload local files to Shopify (overwrites remote)</td></tr>
+      <tr><td><code>shopify theme pull</code></td><td>Download theme from Shopify</td></tr>
+      <tr><td><code>shopify theme check</code></td><td>Lint with Theme Check (errors + best practices)</td></tr>
+      <tr><td><code>shopify theme console</code></td><td>Interactive Liquid REPL against live data</td></tr>
+      <tr><td><code>shopify theme publish</code></td><td>Make theme live</td></tr>
+      <tr><td><code>shopify theme list</code></td><td>List all themes with IDs</td></tr>
+      <tr><td><code>shopify theme package</code></td><td>Create ZIP for distribution</td></tr>
+      <tr><td><code>shopify theme share</code></td><td>Upload with shareable preview link</td></tr>
+      <tr><td><code>shopify theme profile</code></td><td>Profile Liquid execution (Speedscope)</td></tr>
+    </table>
+  </div>
+
+  <h3>Development Workflow</h3>
+  <div class="render-pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">1</div>
+      <div class="pipe-text"><strong>shopify theme init</strong><span>Scaffold from Dawn or Skeleton theme</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">2</div>
+      <div class="pipe-text"><strong>shopify theme dev</strong><span>Local development with hot reload. CSS + section changes hot reload; Liquid logic = full reload</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">3</div>
+      <div class="pipe-text"><strong>shopify theme check</strong><span>Lint before pushing. Catches performance issues, accessibility problems, deprecations</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">4</div>
+      <div class="pipe-text"><strong>shopify theme push</strong><span>Deploy to store. Creates development theme (hidden, auto-deleted after 3 days)</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">5</div>
+      <div class="pipe-text"><strong>shopify theme publish</strong><span>Make the theme live for customers</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>shopify.theme.toml - Environment Config</h4>
+    <pre><code>[environments.development]
+store = "my-dev-store.myshopify.com"
+theme = "123456789"
+
+[environments.production]
+store = "my-production-store.myshopify.com"</code></pre>
+  </div>
+</section>
+
+<!-- ===== THEME APP EXTENSIONS ===== -->
+<section id="theme-app-ext">
+  <h2><span class="num">12</span> Theme App Extensions</h2>
+  <p>Theme app extensions let apps inject functionality into themes without modifying theme code.</p>
+
+  <div class="compare">
+    <div class="compare-col modern" style="border:1px solid var(--green);border-radius:10px">
+      <h4>App Blocks</h4>
+      <ul>
+        <li><code>target: "section"</code></li>
+        <li>Placed within sections by merchants</li>
+        <li>Only work with JSON templates (OS 2.0)</li>
+        <li>Section must declare <code>"type": "@app"</code> in blocks</li>
+        <li>Rendered with <code>{% render block %}</code></li>
+      </ul>
+    </div>
+    <div class="compare-col modern" style="border:1px solid var(--purple);border-radius:10px">
+      <h4 style="color:var(--purple)">App Embeds</h4>
+      <ul>
+        <li><code>target: "head"</code> or <code>"body"</code></li>
+        <li>Injected globally (before &lt;/head&gt; or &lt;/body&gt;)</li>
+        <li>Work in ALL themes (legacy + OS 2.0)</li>
+        <li>Toggled on/off in "App embeds" tab</li>
+        <li>Used for: chat widgets, analytics, overlays</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4>How Themes Support App Blocks</h4>
+    <pre><code><span class="comment">{# In section schema - declare @app block type #}</span>
+"blocks": [
+  { "type": "slide", "name": "Slide" },
+  { "type": "@app" }  <span class="comment">&lt;!-- enables app blocks --&gt;</span>
+]
+
+<span class="comment">{# In section Liquid - render app blocks #}</span>
+<span class="liquid-tag">{% for block in section.blocks %}</span>
+  <span class="liquid-tag">{% case block.type %}</span>
+    <span class="liquid-tag">{% when '@app' %}</span>
+      <span class="liquid-tag">{% render block %}</span>
+    <span class="liquid-tag">{% when 'slide' %}</span>
+      &lt;div <span class="liquid-obj">{{ block.shopify_attributes }}</span>&gt;
+        <span class="comment">&lt;!-- slide content --&gt;</span>
+      &lt;/div&gt;
+  <span class="liquid-tag">{% endcase %}</span>
+<span class="liquid-tag">{% endfor %}</span></code></pre>
+  </div>
+</section>
+
+<!-- ===== CHECKOUT ===== -->
+<section id="checkout">
+  <h2><span class="num">13</span> Checkout Customization</h2>
+
+  <div class="card">
+    <h4>Modern: Checkout UI Extensions</h4>
+    <p style="font-size:.9rem;color:var(--text2);margin-bottom:12px"><code>checkout.liquid</code> (Shopify Plus only) is being sunset. The modern approach is Checkout UI Extensions.</p>
+    <ul style="color:var(--text2);font-size:.9rem;padding-left:20px">
+      <li>Isolated sandbox (Remote DOM) - separate from checkout page</li>
+      <li>Preact-based with hooks (useState, useEffect) and Signals</li>
+      <li>Pre-built UI components: Banner, Text, Button, Stack, TextField, etc.</li>
+      <li>CSS locked to merchant branding - no custom CSS allowed</li>
+      <li>Max bundle size: 64 KB</li>
+      <li>Information/shipping/payment steps: <span class="badge red">Shopify Plus only</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4>Shopify Functions (Backend Logic)</h4>
+    <p style="font-size:.9rem;color:var(--text2)">Replace Shopify Scripts (sunsetting June 30, 2026). Written in Rust (Wasm) or JavaScript. Server-side with strict execution limits. Used for custom discounts, shipping rates, payment methods.</p>
+  </div>
+</section>
+
+<!-- ===== JS PATTERNS ===== -->
+<section id="js-patterns">
+  <h2><span class="num">14</span> JavaScript Patterns in Themes</h2>
+
+  <div class="card">
+    <h4>Web Components (Dawn Pattern)</h4>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:12px">Dawn and modern themes use native Web Components (Custom Elements) instead of frameworks. This is the expected pattern.</p>
+    <pre><code><span class="comment">// Custom element for product form</span>
+class ProductForm extends HTMLElement {
+  constructor() {
+    super();
+    this.form = this.querySelector('form');
+    this.submitButton = this.querySelector('[type="submit"]');
+  }
+
+  connectedCallback() {
+    this.form.addEventListener('submit', this.onSubmit.bind(this));
+  }
+
+  async onSubmit(event) {
+    event.preventDefault();
+    this.submitButton.setAttribute('disabled', '');
+    this.submitButton.classList.add('loading');
+
+    const formData = new FormData(this.form);
+
+    try {
+      const response = await fetch(
+        window.Shopify.routes.root + 'cart/add.js',
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+      const data = await response.json();
+
+      <span class="comment">// Publish custom event for cart drawer to listen</span>
+      document.dispatchEvent(
+        new CustomEvent('cart:item-added', { detail: data })
+      );
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      this.submitButton.removeAttribute('disabled');
+      this.submitButton.classList.remove('loading');
+    }
+  }
+}
+customElements.define('product-form', ProductForm);
+
+<span class="comment">&lt;!-- Usage in Liquid --&gt;</span>
+&lt;product-form&gt;
+  <span class="liquid-tag">{% form 'product', product %}</span>
+    &lt;input type="hidden" name="id"
+      value="<span class="liquid-obj">{{ product.selected_or_first_available_variant.id }}</span>"&gt;
+    &lt;button type="submit"&gt;Add to Cart&lt;/button&gt;
+  <span class="liquid-tag">{% endform %}</span>
+&lt;/product-form&gt;</code></pre>
+  </div>
+
+  <div class="card">
+    <h4>Section Rendering API Pattern</h4>
+    <pre><code><span class="comment">// Update cart drawer without page reload</span>
+async function updateCartDrawer() {
+  const response = await fetch(
+    `${window.Shopify.routes.root}cart.js?sections=cart-drawer`
+  );
+  const data = await response.json();
+
+  <span class="comment">// data.sections['cart-drawer'] contains rendered HTML</span>
+  const cartDrawer = document.getElementById('cart-drawer');
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(
+    data.sections['cart-drawer'], 'text/html'
+  );
+  cartDrawer.innerHTML = doc.querySelector('#cart-drawer').innerHTML;
+}
+
+<span class="comment">// Variant change handler</span>
+function onVariantChange(variantId) {
+  const url = new URL(window.location);
+  url.searchParams.set('variant', variantId);
+
+  fetch(`${url.pathname}?variant=${variantId}&sections=main-product`)
+    .then(r => r.json())
+    .then(data => {
+      <span class="comment">// Swap section HTML with new variant data</span>
+      const html = new DOMParser().parseFromString(
+        data['main-product'], 'text/html'
+      );
+      document.querySelector('.product-info').innerHTML =
+        html.querySelector('.product-info').innerHTML;
+      window.history.replaceState({}, '', url);
+    });
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <h4>Predictive Search Implementation</h4>
+    <pre><code><span class="comment">// Predictive search using Ajax API</span>
+class PredictiveSearch extends HTMLElement {
+  connectedCallback() {
+    this.input = this.querySelector('input[type="search"]');
+    this.results = this.querySelector('.search-results');
+    this.input.addEventListener('input',
+      this.debounce(this.onInput.bind(this), 300)
+    );
+  }
+
+  async onInput() {
+    const query = this.input.value.trim();
+    if (query.length < 2) { this.results.innerHTML = ''; return; }
+
+    const response = await fetch(
+      `${window.Shopify.routes.root}search/suggest.json` +
+      `?q=${encodeURIComponent(query)}` +
+      `&resources[type]=product,collection,article` +
+      `&resources[limit]=4`
+    );
+    const { resources } = await response.json();
+    this.renderResults(resources);
+  }
+
+  debounce(fn, delay) {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  }
+}
+customElements.define('predictive-search', PredictiveSearch);</code></pre>
+  </div>
+</section>
+
+<!-- ===== CHEAT SHEET ===== -->
+<section id="cheatsheet">
+  <h2><span class="num">15</span> Quick Reference Cheat Sheet</h2>
+
+  <div class="cheat-grid">
+    <div class="cheat-item" style="border-left-color:var(--green)">
+      <div class="cheat-label">Layout Required Tags</div>
+      <code>{{ content_for_header }}</code> in &lt;head&gt;
+      <code>{{ content_for_layout }}</code> in &lt;body&gt;
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--yellow)">
+      <div class="cheat-label">Include Snippets</div>
+      <code>{% render 'snippet-name', var: value %}</code>
+      <div class="cheat-desc">NOT {% include %} (deprecated)</div>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--purple)">
+      <div class="cheat-label">Render Section Group</div>
+      <code>{% sections 'header-group' %}</code>
+      <div class="cheat-desc">Replaces static {% section 'header' %}</div>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--orange)">
+      <div class="cheat-label">Product Form</div>
+      <code>{% form 'product', product %}...{% endform %}</code>
+      <div class="cheat-desc">input name="id" = variant ID</div>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--blue)">
+      <div class="cheat-label">Responsive Image</div>
+      <code>{{ img | image_url: width: 800 | image_tag: loading: 'lazy' }}</code>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--pink)">
+      <div class="cheat-label">Prices in Cents</div>
+      <code>{{ product.price | money }}</code>
+      <div class="cheat-desc">$10 = 1000. Always use money filter.</div>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--green)">
+      <div class="cheat-label">Translation</div>
+      <code>{{ 'key.path' | t }}</code>
+      <div class="cheat-desc">From locales/en.default.json</div>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--red)">
+      <div class="cheat-label">Pagination</div>
+      <code>{% paginate collection.products by 12 %}...{% endpaginate %}</code>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--yellow)">
+      <div class="cheat-label">Check Theme Editor</div>
+      <code>{% if request.design_mode %}...{% endif %}</code>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--purple)">
+      <div class="cheat-label">Section-Specific CSS</div>
+      <code>{% style %} .section-{{ section.id }} { } {% endstyle %}</code>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--accent)">
+      <div class="cheat-label">Asset URL</div>
+      <code>{{ 'file.css' | asset_url | stylesheet_tag }}</code>
+    </div>
+    <div class="cheat-item" style="border-left-color:var(--orange)">
+      <div class="cheat-label">Cart Ajax Add</div>
+      <code>POST /cart/add.js { items: [{ id: variantId, quantity: 1 }] }</code>
+    </div>
+  </div>
+</section>
+
+<!-- ===== QUIZ ===== -->
+<section id="quiz">
+  <h2><span class="num">16</span> Practice Quiz</h2>
+
+  <div class="quiz">
+    <h3>Test Your Knowledge</h3>
+
+    <div class="quiz-q" data-answer="c">
+      <p>1. Which two objects are REQUIRED in every layout file?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q1" value="a"> {{ content_for_index }} and {{ content_for_layout }}</label>
+        <label><input type="radio" name="q1" value="b"> {{ content_for_header }} and {{ content_for_footer }}</label>
+        <label><input type="radio" name="q1" value="c"> {{ content_for_header }} and {{ content_for_layout }}</label>
+        <label><input type="radio" name="q1" value="d"> {{ content_for_header }} and {% section 'header' %}</label>
+      </div>
+      <div class="quiz-result" id="q1-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="b">
+      <p>2. What replaced <code>{% include %}</code> in modern Shopify themes?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q2" value="a"> {% import %}</label>
+        <label><input type="radio" name="q2" value="b"> {% render %}</label>
+        <label><input type="radio" name="q2" value="c"> {% partial %}</label>
+        <label><input type="radio" name="q2" value="d"> {% snippet %}</label>
+      </div>
+      <div class="quiz-result" id="q2-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="a">
+      <p>3. In Shopify, product prices are stored in what unit?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q3" value="a"> Cents (1000 = $10.00)</label>
+        <label><input type="radio" name="q3" value="b"> Dollars (10.00 = $10.00)</label>
+        <label><input type="radio" name="q3" value="c"> Formatted strings ("$10.00")</label>
+        <label><input type="radio" name="q3" value="d"> Float with currency code</label>
+      </div>
+      <div class="quiz-result" id="q3-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="b">
+      <p>4. What is the maximum number of sections allowed per JSON template?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q4" value="a"> 10</label>
+        <label><input type="radio" name="q4" value="b"> 25</label>
+        <label><input type="radio" name="q4" value="c"> 50</label>
+        <label><input type="radio" name="q4" value="d"> Unlimited</label>
+      </div>
+      <div class="quiz-result" id="q4-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="c">
+      <p>5. Which command starts a local Shopify theme development server?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q5" value="a"> shopify theme serve</label>
+        <label><input type="radio" name="q5" value="b"> shopify theme start</label>
+        <label><input type="radio" name="q5" value="c"> shopify theme dev</label>
+        <label><input type="radio" name="q5" value="d"> shopify theme run</label>
+      </div>
+      <div class="quiz-result" id="q5-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="a">
+      <p>6. How do you render a section group in a layout file?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q6" value="a"> {% sections 'header-group' %}</label>
+        <label><input type="radio" name="q6" value="b"> {% section_group 'header' %}</label>
+        <label><input type="radio" name="q6" value="c"> {% render_sections 'header-group' %}</label>
+        <label><input type="radio" name="q6" value="d"> {{ content_for_sections }}</label>
+      </div>
+      <div class="quiz-result" id="q6-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="b">
+      <p>7. What should you add to every block's wrapper div for the theme editor?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q7" value="a"> {{ block.editor_id }}</label>
+        <label><input type="radio" name="q7" value="b"> {{ block.shopify_attributes }}</label>
+        <label><input type="radio" name="q7" value="c"> data-block-id="{{ block.id }}"</label>
+        <label><input type="radio" name="q7" value="d"> {{ block.data_attributes }}</label>
+      </div>
+      <div class="quiz-result" id="q7-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="d">
+      <p>8. What is the minimum color contrast ratio for body text in WCAG 2.0 AA?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q8" value="a"> 2:1</label>
+        <label><input type="radio" name="q8" value="b"> 3:1</label>
+        <label><input type="radio" name="q8" value="c"> 3.5:1</label>
+        <label><input type="radio" name="q8" value="d"> 4.5:1</label>
+      </div>
+      <div class="quiz-result" id="q8-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="c">
+      <p>9. What does the Section Rendering API allow you to do?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q9" value="a"> Create new sections from the frontend</label>
+        <label><input type="radio" name="q9" value="b"> Delete sections via AJAX</label>
+        <label><input type="radio" name="q9" value="c"> Request pre-rendered section HTML alongside cart/page requests</label>
+        <label><input type="radio" name="q9" value="d"> Access the Storefront API</label>
+      </div>
+      <div class="quiz-result" id="q9-result"></div>
+    </div>
+
+    <div class="quiz-q" data-answer="a">
+      <p>10. What framework does Dawn (Shopify's reference theme) use for JavaScript?</p>
+      <div class="quiz-opts">
+        <label><input type="radio" name="q10" value="a"> None - native Web Components / vanilla JS</label>
+        <label><input type="radio" name="q10" value="b"> React</label>
+        <label><input type="radio" name="q10" value="c"> Vue.js</label>
+        <label><input type="radio" name="q10" value="d"> jQuery</label>
+      </div>
+      <div class="quiz-result" id="q10-result"></div>
+    </div>
+
+    <button class="quiz-btn" onclick="checkQuiz()">Check All Answers</button>
+    <div id="quizScore" style="margin-top:16px;font-size:1.1rem;font-weight:700"></div>
+  </div>
+</section>
+
+<!-- ===== INTERVIEW Q&A ===== -->
+<section id="interview-qs">
+  <h2><span class="num">17</span> Interview Questions & Answers</h2>
+
+  <div class="card" id="iq1">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq1')">Q: Explain the Shopify theme rendering pipeline <span class="badge green">Very Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> When a customer visits a page, Shopify identifies the page type (product, collection, etc.) and loads the corresponding template. The layout file (<code>theme.liquid</code>) wraps everything - it contains <code>{{ content_for_header }}</code> in the &lt;head&gt; for Shopify's required scripts and <code>{{ content_for_layout }}</code> in the body where the template content renders. If using JSON templates (the modern approach), the template defines which sections to render and in what order. Each section is a self-contained Liquid file with its own schema, settings, and blocks. Sections can render snippets via <code>{% render %}</code>. All Liquid is processed server-side - the browser receives pure HTML.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq2">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq2')">Q: What is Online Store 2.0 and how does it differ from legacy themes? <span class="badge green">Very Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> OS 2.0 introduced JSON templates (replacing Liquid templates), which let merchants add, remove, and reorder sections on every page - not just the homepage. Key changes: (1) JSON templates are pure data files that reference sections, (2) sections everywhere - every page type supports merchant-customizable sections, (3) section groups for header/footer areas, (4) app blocks allow apps to integrate into sections without editing theme code, (5) theme blocks that are reusable across sections, (6) metafield connections through dynamic sources in the theme editor. Legacy themes used Liquid templates where sections were hardcoded with <code>{% section %}</code> calls and only the homepage supported dynamic sections.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq3">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq3')">Q: What is the difference between {% render %} and {% include %}? <span class="badge yellow">Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> <code>{% include %}</code> is deprecated. <code>{% render %}</code> is the modern replacement. The key difference: <code>render</code> creates an isolated scope - the snippet cannot access outer template variables unless explicitly passed as parameters. This was intentional for better performance (enables parallel rendering) and maintainability (no hidden dependencies on parent scope). <code>{% include %}</code> shared the parent scope, which made snippets fragile and harder to optimize.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq4">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq4')">Q: How would you build an AJAX cart drawer? <span class="badge yellow">Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> I'd use a Web Component that intercepts the product form submission, calls the Ajax API (<code>/cart/add.js</code>) with the Section Rendering API by passing <code>sections: 'cart-drawer'</code> in the request body. The response includes pre-rendered HTML for the cart drawer section. I'd parse this HTML with DOMParser and swap the cart drawer's inner HTML. For quantity updates, I'd call <code>/cart/change.js</code> with the same sections parameter. I'd use custom events (<code>document.dispatchEvent(new CustomEvent('cart:updated'))</code>) so other components (header cart count, etc.) can react. The drawer itself would use <code>role="dialog"</code>, focus trapping, and Escape to close for accessibility.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq5">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq5')">Q: How do you optimize a Shopify theme for performance? <span class="badge green">Very Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> Key strategies: (1) <strong>JavaScript</strong>: Target under 16KB, no frameworks, use native Web Components, defer/async all scripts. (2) <strong>Images</strong>: Always use <code>image_url</code> + <code>image_tag</code> filters for responsive srcset generation, lazy-load below-fold images only, never lazy-load above-fold (hurts LCP), set explicit width/height. (3) <strong>CSS</strong>: Inline critical CSS, preload render-blocking stylesheets, no large frameworks. (4) <strong>Fonts</strong>: System fonts preferred, <code>font-display: swap</code> if custom. (5) <strong>Liquid</strong>: Perform operations before loops, use <code>{% liquid %}</code> tag, run <code>shopify theme check</code>. (6) <strong>Tools</strong>: Theme Inspector for Chrome to profile Liquid, Lighthouse CI, <code>shopify theme profile</code> for Speedscope visualization.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq6">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq6')">Q: Explain sections, blocks, and the schema tag <span class="badge green">Very Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> Sections are modular, customizable components. Each section has a <code>{% schema %}</code> tag containing JSON that defines: <strong>name</strong> (editor label), <strong>settings</strong> (merchant inputs like text, color, image_picker), <strong>blocks</strong> (nested content types merchants can add/reorder), <strong>presets</strong> (required for the section to appear in "Add section" picker), and <strong>enabled_on/disabled_on</strong> (template restrictions). Blocks are iterated with <code>{% for block in section.blocks %}</code> and switched by type. Each block's wrapper needs <code>{{ block.shopify_attributes }}</code> for editor functionality. Sections are scoped to 25 per template, 50 blocks per section. Section-specific CSS uses <code>{% style %}</code> tag with <code>section.id</code> for scoping.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq7">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq7')">Q: How do theme app extensions work? <span class="badge yellow">Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> Theme app extensions let apps inject functionality without modifying theme code. There are two types: <strong>App blocks</strong> (target: "section") are placed within sections - the section must declare <code>"type": "@app"</code> in its blocks schema. They only work with OS 2.0/JSON templates. Merchants control placement. <strong>App embeds</strong> (target: "head" or "body") are injected globally before &lt;/head&gt; or &lt;/body&gt;. They work with ALL themes (legacy + OS 2.0) and are toggled in the "App embeds" tab. Use cases: chat widgets, analytics, overlays. Extensions are deployed with <code>shopify app deploy</code> and pushed to all stores using the app simultaneously.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq8">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq8')">Q: How do you handle product variants in a theme? <span class="badge yellow">Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> Products have options (Size, Color) and variants (each combination). In Liquid, I output variant data as JSON for JavaScript: <code>{{ product.variants | json }}</code>. I'd build a variant selector that: (1) renders option selectors from <code>product.options_with_values</code>, (2) on change, finds the matching variant from the JSON data, (3) updates the hidden input <code>name="id"</code> in the product form, (4) updates price, availability, and image using the Section Rendering API (<code>fetch('?variant=ID&sections=main-product')</code>) to get server-rendered HTML with the correct variant data, (5) updates the URL with <code>history.replaceState</code>. Use <code>product.selected_or_first_available_variant</code> for the default selection.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq9">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq9')">Q: What accessibility requirements must Shopify themes meet? <span class="badge yellow">Common</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> WCAG 2.0 Level AA minimum. Key requirements: (1) <strong>Keyboard</strong>: All interactive elements keyboard-operable, visible focus indicators, Escape closes modals. (2) <strong>ARIA</strong>: aria-expanded on collapsibles, aria-live for dynamic content (cart count updates), aria-current for navigation. (3) <strong>Contrast</strong>: 4.5:1 for body text, 3:1 for large text/icons/input borders. (4) <strong>Semantic HTML</strong>: Proper heading hierarchy, nav/main/section elements, labels on form inputs. (5) <strong>Skip links</strong>: "Skip to content" link visible on focus. (6) <strong>Touch targets</strong>: 44x44px minimum. (7) <strong>Media</strong>: No autoplay, captions on video. Theme Store tests the "critical path" - homepage to checkout using only keyboard and screen reader.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq10">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq10')">Q: How would you approach debugging a slow Shopify theme? <span class="badge purple">Advanced</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> Systematic approach: (1) Run Lighthouse audit to identify the bottleneck category (LCP, CLS, TBT). (2) Use <strong>Theme Inspector for Chrome</strong> to profile Liquid rendering - it shows execution time per section/snippet. (3) Run <code>shopify theme profile</code> for detailed Speedscope visualization. (4) Check <code>shopify theme check</code> output for performance-flagged issues. (5) Common culprits: unoptimized images (missing lazy loading or srcset), heavy JavaScript bundles, render-blocking CSS, expensive Liquid operations inside loops (sort/filter should be before the loop), too many API calls via <code>all_products</code> or <code>collections</code> global objects. (6) Check the Web Performance Dashboard in Shopify admin for RUM data. (7) Ensure assets are on Shopify CDN for HTTP/2 benefits.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq11">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq11')">Q: What are dynamic sources and how do they work? <span class="badge purple">Advanced</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> Dynamic sources allow merchants to connect section/block settings to store data (product fields, metafields, metaobjects) directly through the theme editor - no code changes needed. For example, a merchant can connect a text setting to a product metafield, and it updates automatically for each product. This works because section settings define their type (text, image_picker, etc.) and Shopify matches compatible metafield types. Limits: 100 dynamic sources per JSON template, 50 per setting. This is a key OS 2.0 feature that reduces the need for custom Liquid code to access metafields.</p>
+    </div>
+  </div>
+
+  <div class="card" id="iq12">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('iq12')">Q: Compare and contrast sections, snippets, and theme blocks <span class="badge purple">Advanced</span></h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>Answer:</strong> <strong>Sections</strong> are merchant-configurable modules with schema, settings, and blocks. They appear in the theme editor. <strong>Snippets</strong> are developer-only code partials rendered via <code>{% render %}</code>. They have no schema and are invisible to merchants. Great for reusable markup (product cards, icons). <strong>Theme blocks</strong> (in the <code>/blocks</code> directory) are a newer OS 2.0+ feature - they're like section blocks but reusable across multiple sections. They support nesting and have their own schema. Sections opt into theme blocks via <code>"type": "@theme"</code> in their blocks array. Rendered via <code>{% content_for 'blocks' %}</code>. Use snippets for code reuse, sections for merchant-configurable page modules, and theme blocks for cross-section reusable configurable content.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL TIPS ===== -->
+<section id="final-tips">
+  <h2><span class="num">18</span> Final Tips for Your Interview</h2>
+
+  <div class="card-grid">
+    <div class="card" style="border-left:4px solid var(--green)">
+      <h4 style="color:var(--green)">What to Emphasize</h4>
+      <ul style="color:var(--text2);font-size:.9rem;padding-left:20px;line-height:2">
+        <li>Always talk about <strong>Online Store 2.0</strong> as the modern approach</li>
+        <li>Mention <strong>Dawn</strong> as the reference theme</li>
+        <li>Show you understand <strong>server-side rendering</strong></li>
+        <li>Talk about <strong>merchant experience</strong> - sections, blocks, customization</li>
+        <li>Performance: no jQuery, no frameworks, Web Components</li>
+        <li>Accessibility is not optional - WCAG 2.0 AA</li>
+        <li>Use <strong>Section Rendering API</strong> for dynamic updates</li>
+      </ul>
+    </div>
+    <div class="card" style="border-left:4px solid var(--red)">
+      <h4 style="color:var(--red)">Common Mistakes to Avoid</h4>
+      <ul style="color:var(--text2);font-size:.9rem;padding-left:20px;line-height:2">
+        <li>Using <code>{% include %}</code> instead of <code>{% render %}</code></li>
+        <li>Forgetting <code>content_for_header</code> or <code>content_for_layout</code></li>
+        <li>Treating prices as dollars (they're in <strong>cents</strong>)</li>
+        <li>Lazy-loading above-the-fold images</li>
+        <li>Missing <code>{{ block.shopify_attributes }}</code></li>
+        <li>Using <code>enabled_on</code> AND <code>disabled_on</code> together</li>
+        <li>Referring to Liquid templates when they mean JSON templates</li>
+        <li>Suggesting jQuery or heavy frameworks</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tip green" style="margin-top:20px">
+    <div class="tip-icon">&#9889;</div>
+    <div class="tip-text">
+      <strong>Your Laravel Advantage</strong>
+      You already understand MVC, templating (Blade ~ Liquid), routing, and Shopify's API. In the interview, bridge your knowledge: "Liquid is like Blade but server-rendered by Shopify. JSON templates are like route definitions pointing to section controllers. Sections are like Blade components with configurable props via schema."
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<script>
+// === Tab switching ===
+function showTab(e, tabId) {
+  const parent = e.target.closest('section');
+  parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  e.target.classList.add('active');
+}
+
+// === Quiz ===
+function checkQuiz() {
+  let score = 0;
+  const total = 10;
+  for (let i = 1; i <= total; i++) {
+    const q = document.querySelector(`.quiz-q:nth-child(${i})`);
+    if (!q) continue;
+    const answer = q.dataset.answer;
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    const resultEl = document.getElementById(`q${i}-result`);
+    if (selected && selected.value === answer) {
+      resultEl.className = 'quiz-result correct';
+      resultEl.textContent = 'Correct!';
+      score++;
+    } else {
+      resultEl.className = 'quiz-result wrong';
+      resultEl.textContent = `Incorrect. Correct answer: ${answer.toUpperCase()}`;
+    }
+  }
+  const scoreEl = document.getElementById('quizScore');
+  scoreEl.textContent = `Score: ${score}/${total} (${Math.round(score/total*100)}%)`;
+  scoreEl.style.color = score >= 7 ? 'var(--green)' : score >= 5 ? 'var(--yellow)' : 'var(--red)';
+}
+
+// === Toggle interview answers ===
+function toggleAnswer(id) {
+  const card = document.getElementById(id);
+  const answer = card.querySelector('.iq-answer');
+  answer.style.display = answer.style.display === 'none' ? 'block' : 'none';
+}
+
+// === Progress bar ===
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const progress = (scrollTop / scrollHeight) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+});
+
+// === Active nav link ===
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -80% 0px' });
+sections.forEach(s => observer.observe(s));
+
+
+// === Animate on scroll ===
+const animBoxes = document.querySelectorAll('.anim-box');
+const animObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+animBoxes.forEach(box => animObserver.observe(box));
+</script>
+
+</body>
+</html>
