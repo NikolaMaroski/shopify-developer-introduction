@@ -3501,9 +3501,7 @@ document.querySelectorAll('.code-editor textarea').forEach(ta => {
   ta.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       e.preventDefault();
-      const start = ta.selectionStart;
-      ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(ta.selectionEnd);
-      ta.selectionStart = ta.selectionEnd = start + 2;
+      document.execCommand('insertText', false, '  ');
     }
   });
 });
