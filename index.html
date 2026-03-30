@@ -376,6 +376,12 @@ tr:hover td{background:var(--bg3)}
   </div>
   <div class="nav-divider"></div>
   <div class="nav-group">
+    <div class="nav-group-title">Code Review Prep</div>
+    <a href="#code-walkthrough"><span class="nav-icon">21</span> Code Walkthrough</a>
+    <a href="#mock-review"><span class="nav-icon">22</span> Mock Review</a>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-group">
     <div class="nav-group-title">Practice & Review</div>
     <a href="#cheatsheet"><span class="nav-icon">21</span> Cheat Sheet</a>
     <a href="#quiz"><span class="nav-icon">22</span> Quiz</a>
@@ -417,6 +423,10 @@ tr:hover td{background:var(--bg3)}
   <a href="#data-reliability">Data & Reliability</a>
   <a href="#tradeoffs">Tradeoffs & Business</a>
   <a href="#senior-quiz">Senior Quiz</a>
+  <div class="nav-divider"></div>
+  <div class="nav-group-title">Code Review Prep</div>
+  <a href="#code-walkthrough">Code Walkthrough</a>
+  <a href="#mock-review">Mock Review</a>
   <div class="nav-divider"></div>
   <div class="nav-group-title">Practice & Review</div>
   <a href="#cheatsheet">Cheat Sheet</a>
@@ -3616,6 +3626,499 @@ fetch('/admin/api/2026-01/graphql.json', {
       <button class="quiz-btn" onclick="resetSeniorQuiz()" style="background:var(--bg4);color:var(--text2)">Reset &amp; Shuffle</button>
     </div>
     <div id="seniorQuizScore" style="margin-top:16px;font-size:1.1rem;font-weight:700"></div>
+  </div>
+</section>
+
+<!-- ===== CODE WALKTHROUGH PREP ===== -->
+<section id="code-walkthrough">
+  <h2><span class="num">21</span> Code Walkthrough - How to Present Your Work</h2>
+  <p>The interviewer will ask you to walk through code you're proud of. This is NOT a quiz - it's a conversation about your <strong>thinking, decisions, and tradeoffs</strong>. Here's how a senior dev structures this.</p>
+
+  <div class="tip purple" style="margin-bottom:24px">
+    <div class="tip-icon">&#128172;</div>
+    <div class="tip-text">
+      <strong>What the recruiter told you:</strong> "Discuss a piece of Shopify-related code you're proud of (React app with Polaris, backend work for a Shopify app, or a theme with Liquid/JavaScript). Review the code together and talk through the problem it solves and your implementation approach."
+    </div>
+  </div>
+
+  <h3>The Senior Framework: STAR-T</h3>
+  <div class="render-pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">S</div>
+      <div class="pipe-text"><strong>Situation</strong><span>"The merchant needed X because Y. The existing solution had Z problem."</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">T</div>
+      <div class="pipe-text"><strong>Task</strong><span>"I was responsible for designing and implementing the solution. The constraints were..."</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">A</div>
+      <div class="pipe-text"><strong>Approach</strong><span>"I chose X over Y because... The tradeoff was... I structured it this way because..."</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">R</div>
+      <div class="pipe-text"><strong>Result</strong><span>"This reduced page load by X%, increased conversion by Y%, reduced support tickets by Z%."</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">T</div>
+      <div class="pipe-text"><strong>Tradeoffs & What I'd Change</strong><span>"If I rebuilt it today, I'd change X because... The limitation is Y, and here's how I'd address it."</span></div>
+    </div>
+  </div>
+
+  <h3>What Interviewers Actually Evaluate</h3>
+  <div class="card-grid">
+    <div class="mini-card">
+      <h4>Problem Understanding</h4>
+      <p>Can you articulate the business problem clearly? Do you understand the merchant's pain point, not just the technical requirement?</p>
+    </div>
+    <div class="mini-card">
+      <h4>Decision Justification</h4>
+      <p>Why did you pick this architecture? What alternatives did you consider? Why NOT the other options? This shows depth.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Code Quality Awareness</h4>
+      <p>Can you point to patterns you're proud of AND things you'd improve? Self-awareness > perfection. Seniors know their code's weaknesses.</p>
+    </div>
+    <div class="mini-card">
+      <h4>Business Impact</h4>
+      <p>How did this help the merchant? Conversion, performance, reliability, developer velocity? Tie every technical choice to a business outcome.</p>
+    </div>
+  </div>
+
+  <h3>3 Code Examples Ready to Present</h3>
+  <p style="font-size:.9rem;color:var(--text2);margin-bottom:16px">Since you built Shopify public apps with Laravel, prepare these three angles. Each includes the code pattern, how to explain it, and what questions to expect.</p>
+
+  <!-- EXAMPLE 1: Laravel Webhook Handler -->
+  <div class="card" style="border-left:4px solid var(--green)">
+    <h4 style="color:var(--green)">Example 1: Webhook Handler (Laravel Backend)</h4>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:12px"><strong>Pitch:</strong> "I built a reliable webhook processing system for our Shopify app that handles orders/create, products/update, and GDPR compliance webhooks."</p>
+    <pre><code><span class="comment">// app/Http/Middleware/VerifyShopifyWebhook.php</span>
+class VerifyShopifyWebhook
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $hmac = $request->header('X-Shopify-Hmac-SHA256');
+        $data = $request->getContent();  <span class="comment">// raw body BEFORE parsing</span>
+        $calculated = base64_encode(
+            hash_hmac('sha256', $data, config('shopify.secret'), true)
+        );
+
+        if (!hash_equals($calculated, $hmac)) {
+            return response('Unauthorized', 401);
+        }
+
+        return $next($request);
+    }
+}
+
+<span class="comment">// app/Http/Controllers/WebhookController.php</span>
+class WebhookController extends Controller
+{
+    public function handle(Request $request)
+    {
+        $eventId = $request->header('X-Shopify-Event-Id');
+
+        <span class="comment">// Deduplication: skip if already processed</span>
+        if (Cache::has("webhook:{$eventId}")) {
+            return response('', 200);
+        }
+        Cache::put("webhook:{$eventId}", true, now()->addHours(24));
+
+        <span class="comment">// Respond 200 immediately, process async</span>
+        $topic = $request->header('X-Shopify-Topic');
+        $shop = $request->header('X-Shopify-Shop-Domain');
+
+        ProcessWebhookJob::dispatch($topic, $shop, $request->all());
+
+        return response('', 200);
+    }
+}
+
+<span class="comment">// app/Jobs/ProcessWebhookJob.php</span>
+class ProcessWebhookJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $tries = 3;
+    public $backoff = [30, 120, 600];
+
+    public function handle()
+    {
+        match ($this->topic) {
+            'orders/create'          => $this->handleOrderCreate(),
+            'products/update'        => $this->handleProductUpdate(),
+            'customers/redact'       => $this->handleCustomerRedact(),
+            'shop/redact'            => $this->handleShopRedact(),
+            'customers/data_request' => $this->handleDataRequest(),
+        };
+    }
+
+    private function handleProductUpdate()
+    {
+        $product = $this->payload;
+        <span class="comment">// Idempotent: use updated_at, not arrival order</span>
+        $existing = Product::find($product['id']);
+        if ($existing && $existing->shopify_updated_at >= $product['updated_at']) {
+            return; <span class="comment">// Already have newer data</span>
+        }
+        Product::updateOrCreate(
+            ['shopify_id' => $product['id']],
+            ['title' => $product['title'], 'shopify_updated_at' => $product['updated_at']]
+        );
+    }
+}</code></pre>
+
+    <h4 style="margin-top:16px">How to Walk Through This</h4>
+    <div class="tip green">
+      <div class="tip-icon">&#128483;</div>
+      <div class="tip-text">
+        <strong>Say:</strong> "The biggest challenge with Shopify webhooks is reliability. They can arrive out of order, be duplicated, or be lost entirely. So I built three layers of defense: HMAC verification in middleware to ensure authenticity, event ID deduplication in Redis to prevent double processing, and timestamp comparison in the job handler for idempotency. The job queue pattern means we always respond within Shopify's 5-second window. As a safety net, I added a reconciliation cron that polls updated_at via GraphQL every 15 minutes."
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAMPLE 2: React + Polaris Embedded App -->
+  <div class="card" style="border-left:4px solid var(--purple)">
+    <h4 style="color:var(--purple)">Example 2: Embedded App Page (React + Polaris)</h4>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:12px"><strong>Pitch:</strong> "I built a product management interface in our embedded Shopify app using Polaris components and the GraphQL Admin API."</p>
+    <pre><code><span class="comment">// app/routes/app.products.tsx (Remix)</span>
+import { json } from "@remix-run/node";
+import { useLoaderData, useSubmit } from "@remix-run/react";
+import { Page, Layout, Card, IndexTable, Badge, Button, Text } from "@shopify/polaris";
+
+export async function loader({ request }) {
+  const { admin } = await shopify.authenticate.admin(request);
+
+  const response = await admin.graphql(`
+    query GetProducts($first: Int!) {
+      products(first: $first, sortKey: UPDATED_AT, reverse: true) {
+        edges {
+          node {
+            id
+            title
+            status
+            totalInventory
+            featuredImage { url altText }
+            metafield(namespace: "app", key: "sync_status") {
+              value
+            }
+          }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  `, { variables: { first: 50 } });
+
+  const { data } = await response.json();
+  return json({ products: data.products.edges.map(e => e.node) });
+}
+
+export async function action({ request }) {
+  const { admin } = await shopify.authenticate.admin(request);
+  const formData = await request.formData();
+  const productId = formData.get("productId");
+
+  <span class="comment">// Sync product to external service with idempotency</span>
+  const response = await admin.graphql(`
+    mutation SetSyncStatus($id: ID!, $value: String!) {
+      metafieldsSet(metafields: [{
+        ownerId: $id
+        namespace: "app"
+        key: "sync_status"
+        value: $value
+        type: "single_line_text_field"
+      }]) {
+        userErrors { field message }
+      }
+    }
+  `, { variables: { id: productId, value: "synced" } });
+
+  return json({ success: true });
+}
+
+export default function ProductsPage() {
+  const { products } = useLoaderData();
+  const submit = useSubmit();
+
+  return (
+    &lt;Page title="Product Sync Dashboard"&gt;
+      &lt;Layout&gt;
+        &lt;Layout.Section&gt;
+          &lt;Card padding="0"&gt;
+            &lt;IndexTable
+              itemCount={products.length}
+              headings={[
+                { title: "Product" },
+                { title: "Status" },
+                { title: "Inventory" },
+                { title: "Sync" },
+                { title: "Actions" },
+              ]}
+              selectable={false}
+            &gt;
+              {products.map((product) => (
+                &lt;IndexTable.Row key={product.id}&gt;
+                  &lt;IndexTable.Cell&gt;
+                    &lt;Text fontWeight="bold"&gt;{product.title}&lt;/Text&gt;
+                  &lt;/IndexTable.Cell&gt;
+                  &lt;IndexTable.Cell&gt;
+                    &lt;Badge tone={product.status === "ACTIVE" ? "success" : "warning"}&gt;
+                      {product.status}
+                    &lt;/Badge&gt;
+                  &lt;/IndexTable.Cell&gt;
+                  &lt;IndexTable.Cell&gt;{product.totalInventory}&lt;/IndexTable.Cell&gt;
+                  &lt;IndexTable.Cell&gt;
+                    &lt;Badge tone={product.metafield?.value === "synced" ? "success" : "attention"}&gt;
+                      {product.metafield?.value || "pending"}
+                    &lt;/Badge&gt;
+                  &lt;/IndexTable.Cell&gt;
+                  &lt;IndexTable.Cell&gt;
+                    &lt;Button size="slim" onClick={() =>
+                      submit({ productId: product.id }, { method: "post" })
+                    }&gt;Sync Now&lt;/Button&gt;
+                  &lt;/IndexTable.Cell&gt;
+                &lt;/IndexTable.Row&gt;
+              ))}
+            &lt;/IndexTable&gt;
+          &lt;/Card&gt;
+        &lt;/Layout.Section&gt;
+      &lt;/Layout&gt;
+    &lt;/Page&gt;
+  );
+}</code></pre>
+
+    <h4 style="margin-top:16px">How to Walk Through This</h4>
+    <div class="tip green">
+      <div class="tip-icon">&#128483;</div>
+      <div class="tip-text">
+        <strong>Say:</strong> "I used Remix because it's Shopify's recommended template - server-side data loading via loaders means the GraphQL call happens on the backend where the access token lives. I chose Polaris's IndexTable for the product list because it matches the admin's native UI, reducing cognitive load for merchants. The sync status uses an app-owned metafield so it's scoped to our app and visible in the admin. For the action, I used Remix's form submission pattern rather than a raw fetch because it integrates with App Bridge navigation and handles loading states automatically."
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAMPLE 3: Theme Section -->
+  <div class="card" style="border-left:4px solid var(--yellow)">
+    <h4 style="color:var(--yellow)">Example 3: Dynamic Product Section (Liquid + JS)</h4>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:12px"><strong>Pitch:</strong> "I built a featured product section with real-time variant switching using the Section Rendering API."</p>
+    <pre><code><span class="comment">&lt;!-- sections/featured-product.liquid --&gt;</span>
+&lt;div class="featured-product section-<span class="liquid-obj">{{ section.id }}</span>"&gt;
+  &lt;div class="featured-product__media"&gt;
+    <span class="liquid-tag">{% assign current_variant = product.selected_or_first_available_variant %}</span>
+    <span class="liquid-tag">{% if current_variant.featured_image %}</span>
+      <span class="liquid-obj">{{ current_variant.featured_image | image_url: width: 800
+        | image_tag:
+          widths: '400,600,800',
+          sizes: '(max-width: 768px) 100vw, 50vw',
+          id: 'product-image',
+          alt: product.title }}</span>
+    <span class="liquid-tag">{% endif %}</span>
+  &lt;/div&gt;
+
+  &lt;div class="featured-product__info"&gt;
+    &lt;h2&gt;<span class="liquid-obj">{{ product.title }}</span>&lt;/h2&gt;
+    &lt;div class="price" id="product-price"&gt;
+      <span class="liquid-tag">{% if current_variant.compare_at_price > current_variant.price %}</span>
+        &lt;s&gt;<span class="liquid-obj">{{ current_variant.compare_at_price | money }}</span>&lt;/s&gt;
+      <span class="liquid-tag">{% endif %}</span>
+      <span class="liquid-obj">{{ current_variant.price | money }}</span>
+    &lt;/div&gt;
+
+    <span class="comment">&lt;!-- Variant selector as Web Component --&gt;</span>
+    &lt;variant-selector data-section="<span class="liquid-obj">{{ section.id }}</span>"&gt;
+      <span class="liquid-tag">{% for option in product.options_with_values %}</span>
+        &lt;fieldset&gt;
+          &lt;legend&gt;<span class="liquid-obj">{{ option.name }}</span>&lt;/legend&gt;
+          <span class="liquid-tag">{% for value in option.values %}</span>
+            &lt;label&gt;
+              &lt;input type="radio" name="<span class="liquid-obj">{{ option.name }}</span>"
+                value="<span class="liquid-obj">{{ value }}</span>"
+                <span class="liquid-tag">{% if option.selected_value == value %}</span>checked<span class="liquid-tag">{% endif %}</span>&gt;
+              <span class="liquid-obj">{{ value }}</span>
+            &lt;/label&gt;
+          <span class="liquid-tag">{% endfor %}</span>
+        &lt;/fieldset&gt;
+      <span class="liquid-tag">{% endfor %}</span>
+      &lt;script type="application/json"&gt;<span class="liquid-obj">{{ product.variants | json }}</span>&lt;/script&gt;
+    &lt;/variant-selector&gt;
+
+    <span class="liquid-tag">{% form 'product', product %}</span>
+      &lt;input type="hidden" name="id" value="<span class="liquid-obj">{{ current_variant.id }}</span>"&gt;
+      &lt;button type="submit"
+        <span class="liquid-tag">{% unless current_variant.available %}</span>disabled<span class="liquid-tag">{% endunless %}</span>&gt;
+        <span class="liquid-tag">{% if current_variant.available %}</span>
+          <span class="liquid-obj">{{ 'products.product.add_to_cart' | t }}</span>
+        <span class="liquid-tag">{% else %}</span>
+          <span class="liquid-obj">{{ 'products.product.sold_out' | t }}</span>
+        <span class="liquid-tag">{% endif %}</span>
+      &lt;/button&gt;
+    <span class="liquid-tag">{% endform %}</span>
+  &lt;/div&gt;
+&lt;/div&gt;
+
+<span class="liquid-tag">{% style %}</span>
+  .section-<span class="liquid-obj">{{ section.id }}</span> { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 768px) { .section-<span class="liquid-obj">{{ section.id }}</span> { grid-template-columns: 1fr; } }
+<span class="liquid-tag">{% endstyle %}</span>
+
+&lt;script&gt;
+class VariantSelector extends HTMLElement {
+  connectedCallback() {
+    this.variants = JSON.parse(this.querySelector('script').textContent);
+    this.section = this.dataset.section;
+    this.addEventListener('change', () => this.onVariantChange());
+  }
+
+  onVariantChange() {
+    const selected = [...this.querySelectorAll('fieldset')]
+      .map(f => f.querySelector('input:checked')?.value);
+    const variant = this.variants.find(v =>
+      v.options.every((opt, i) => opt === selected[i])
+    );
+    if (!variant) return;
+
+    <span class="comment">// Update URL without reload</span>
+    const url = new URL(window.location);
+    url.searchParams.set('variant', variant.id);
+    history.replaceState({}, '', url);
+
+    <span class="comment">// Section Rendering API: get fresh server-rendered HTML</span>
+    fetch(`${url.pathname}?variant=${variant.id}&amp;sections=${this.section}`)
+      .then(r => r.json())
+      .then(data => {
+        const doc = new DOMParser().parseFromString(data[this.section], 'text/html');
+        <span class="comment">// Swap price and image from server-rendered HTML</span>
+        document.getElementById('product-price').innerHTML =
+          doc.getElementById('product-price').innerHTML;
+        document.getElementById('product-image').src =
+          doc.getElementById('product-image').src;
+        <span class="comment">// Update form hidden input</span>
+        this.closest('section').querySelector('input[name="id"]').value = variant.id;
+      });
+  }
+}
+customElements.define('variant-selector', VariantSelector);
+&lt;/script&gt;</code></pre>
+
+    <h4 style="margin-top:16px">How to Walk Through This</h4>
+    <div class="tip green">
+      <div class="tip-icon">&#128483;</div>
+      <div class="tip-text">
+        <strong>Say:</strong> "I chose the Section Rendering API over client-side price formatting because it lets Shopify handle currency formatting, availability logic, and any Liquid-dependent data server-side. This means the variant switch shows the exact same HTML the server would render on a full page load - no formatting mismatches. I used a Web Component because it's Dawn's pattern - zero framework dependencies, works with any theme, and the browser natively handles element lifecycle. The variant data is output as JSON inline to avoid an extra API call. The section-scoped CSS via <code>{% style %}</code> prevents style leaks between sections."
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MOCK CODE REVIEW ===== -->
+<section id="mock-review">
+  <h2><span class="num">22</span> Mock Code Review - Interviewer Questions</h2>
+  <p>Here are the <strong>exact questions</strong> interviewers ask during a code walkthrough, with senior-level answers. Click each to reveal.</p>
+
+  <h3>General / Opening Questions</h3>
+
+  <div class="card" id="mr1">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr1')">"Walk me through this code. What problem does it solve?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> Start with the BUSINESS problem, not the code. "Merchants needed X because Y. The existing approach had Z limitation. This code solves it by..." Then walk through the architecture top-down: entry point, flow, key decisions. Don't read code line-by-line - explain the STRUCTURE and WHY.</p>
+    </div>
+  </div>
+
+  <div class="card" id="mr2">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr2')">"What alternatives did you consider? Why did you choose this approach?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> Always name at least 2 alternatives and explain the tradeoff. Example: "I considered polling the API on a cron vs webhooks. Polling is simpler and more reliable, but adds latency and consumes rate limit budget. Webhooks give near real-time updates but can be lost. I chose webhooks as primary with polling as a fallback - this gives us speed AND reliability." The key: show you didn't just grab the first solution.</p>
+    </div>
+  </div>
+
+  <div class="card" id="mr3">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr3')">"What would you change if you rebuilt this today?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> This tests self-awareness. Every senior has regrets about past code. Good answers: "I'd move from REST to GraphQL for better rate limit efficiency." "I'd use bulk operations instead of paginated loops." "I'd add better error boundaries." "I'd use metaobjects instead of a custom database table for this data since it's now available." BAD answer: "Nothing, it's perfect." That's a red flag.</p>
+    </div>
+  </div>
+
+  <h3>Architecture Questions</h3>
+
+  <div class="card" id="mr4">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr4')">"How does this handle errors? What happens if the API is down?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> Show you think about failure modes. "For webhook processing, the job queue has 3 retries with exponential backoff (30s, 2min, 10min). If the Shopify API is down, the job stays in the queue and retries. For the storefront, I cache critical data locally so the merchant's store doesn't break. For the admin UI, I show a Banner component with the error and a retry button rather than a blank page. I log all failures to Sentry with the shop domain and request ID for debugging."</p>
+    </div>
+  </div>
+
+  <div class="card" id="mr5">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr5')">"How does this scale? What if a merchant has 100K products?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> "For initial sync, I use bulk operations via GraphQL - this bypasses rate limits entirely and returns a JSONL file. For ongoing sync, webhooks handle individual changes. The reconciliation job uses cursor-based pagination with <code>updated_at</code> filters so it only fetches changed products, not the full catalog. The IndexTable in the admin UI uses pagination (not loading 100K rows). For the storefront, I rely on Shopify's CDN and only render what's visible."</p>
+    </div>
+  </div>
+
+  <div class="card" id="mr6">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr6')">"How do you handle rate limits?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> "With GraphQL, I monitor <code>extensions.cost.throttleStatus</code> in every response. If <code>currentlyAvailable</code> drops below 200, I add a delay. On 429, I use exponential backoff. I request only the fields I need to minimize query cost. For heavy operations, I use bulk operations which are exempt from rate limits. I also cache frequently-accessed data like shop settings and metafield definitions to avoid redundant API calls."</p>
+    </div>
+  </div>
+
+  <h3>Code Quality Questions</h3>
+
+  <div class="card" id="mr7">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr7')">"Why did you use this particular pattern / library / approach?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> Always connect to Shopify's ecosystem. Examples: "I used Web Components because it's Dawn's pattern and works without framework lock-in." "I used Polaris IndexTable because it matches the admin's native UI - merchants already know how to use it." "I used Remix because it's Shopify's recommended app framework - the loader/action pattern maps perfectly to the session token auth flow." "I used metafields instead of a custom table because the data needs to render in Liquid templates."</p>
+    </div>
+  </div>
+
+  <div class="card" id="mr8">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr8')">"How do you test this code?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> "For webhooks: I use <code>shopify app webhook trigger</code> to test locally with real payloads. Unit tests verify HMAC validation and idempotency logic. Integration tests hit a dev store. For the admin UI: Polaris components have built-in accessibility testing. I test with the Shopify theme inspector and Lighthouse. For Liquid: <code>shopify theme check</code> catches errors and performance issues. <code>shopify theme dev</code> gives hot reload against real store data."</p>
+    </div>
+  </div>
+
+  <div class="card" id="mr9">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr9')">"How do you ensure security in this Shopify app?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> "Four layers: (1) HMAC verification on every webhook and OAuth callback using <code>hash_equals()</code> for constant-time comparison - prevents timing attacks. (2) Session token validation on every embedded app request - the JWT is signed with our client secret. (3) Scope minimization - I only request the access scopes the app actually needs. (4) GDPR compliance - all three mandatory webhooks are implemented and tested. I never store the client secret in frontend code or version control."</p>
+    </div>
+  </div>
+
+  <h3>Business Impact Questions</h3>
+
+  <div class="card" id="mr10">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr10')">"How does this impact the merchant's business?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> Always quantify. "The real-time variant switching via Section Rendering API means no full page reloads - this keeps customers engaged and reduces bounce rate. The webhook-driven sync means inventory is accurate within seconds, preventing overselling. Using Polaris components means merchants don't need training - the UI looks and works like the rest of their admin. The performance optimizations (lazy loading, system fonts, no jQuery) directly improve Lighthouse scores which correlate with conversion rates."</p>
+    </div>
+  </div>
+
+  <div class="card" id="mr11">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr11')">"If you had one more week, what would you add?"</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> Show prioritization skills. "I'd add: (1) Better error monitoring with structured logging per shop domain - right now debugging multi-tenant issues takes too long. (2) Bulk operations for the initial product sync instead of paginated queries - it would cut the onboarding time from 10 minutes to under 1 minute for large catalogs. (3) A health check dashboard so we can proactively detect when webhook deliveries are failing for a specific store."</p>
+    </div>
+  </div>
+
+  <div class="card" id="mr12">
+    <h4 style="cursor:pointer" onclick="toggleAnswer('mr12')">"Tell me about a bug or production incident related to this code."</h4>
+    <div class="iq-answer" style="display:none">
+      <p style="font-size:.9rem;color:var(--text2);margin-top:10px"><strong>How to answer:</strong> Don't dodge this. Seniors have war stories. Example: "We had a race condition where duplicate webhooks arrived simultaneously and both passed the dedup check. Two workers processed the same order, creating duplicate records. The fix was switching from cache-based dedup to a database unique constraint on event_id with a try/catch on the duplicate key error. The deeper lesson: at-least-once delivery means your processing MUST be idempotent at the database level, not just the application level."</p>
+    </div>
+  </div>
+
+  <h3>Prep Checklist</h3>
+  <div class="card" style="border-left:4px solid var(--green)">
+    <h4 style="color:var(--green)">Before the Interview</h4>
+    <ul style="color:var(--text2);font-size:.9rem;padding-left:20px;line-height:2.2">
+      <li>Pick <strong>one piece of code</strong> you know deeply - preferably your Laravel Shopify app</li>
+      <li>Have it open in an editor/IDE or ready to screen share</li>
+      <li>Practice the <strong>2-minute pitch</strong>: problem, approach, result</li>
+      <li>Know <strong>3 things you'd improve</strong> about the code</li>
+      <li>Prepare <strong>one failure story</strong> and what you learned</li>
+      <li>Know the <strong>numbers</strong>: how many merchants, products processed, response times</li>
+      <li>Practice <strong>explaining decisions in terms of business impact</strong></li>
+      <li>Have the Shopify docs open in another tab for reference</li>
+    </ul>
   </div>
 </section>
 
